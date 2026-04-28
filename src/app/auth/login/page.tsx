@@ -2,11 +2,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-
-const DUMMY_USERS = [
-  { email: 'member@ui.ac.id', password: '123', role: 'member' },
-  { email: 'staf@ui.ac.id', password: '123', role: 'staf' },
-];
+import { DUMMY_PENGGUNA } from '@/dummy/pengguna';
+import { DUMMY_STAF } from '@/dummy/staf'; // Tambahkan import staf
 
 export default function LoginPage() {
   const router = useRouter();
@@ -19,7 +16,7 @@ export default function LoginPage() {
     e.preventDefault();
     setErrorMessage('');
 
-    const validUser = DUMMY_USERS.find(
+    const validUser = DUMMY_PENGGUNA.find(
       (user) => user.email === email && user.password === password
     );
 
@@ -28,9 +25,11 @@ export default function LoginPage() {
       return;
     }
 
-    if (validUser.role === 'staf') {
+    const isStaf = DUMMY_STAF.some((staf) => staf.email === email);
+
+    if (isStaf) {
       alert('Login berhasil sebagai Staf!');
-      router.push('/staf/dashboard');
+      router.push('/staf/dashboard'); 
     } else {
       alert('Login berhasil sebagai Member!');
       router.push('/member/dashboard');
