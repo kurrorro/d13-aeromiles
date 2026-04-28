@@ -2,8 +2,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { DUMMY_PENGGUNA } from '@/dummy/pengguna';
-import { DUMMY_STAF } from '@/dummy/staf'; // Tambahkan import staf
+import { signIn } from 'next-auth/react'; // Tambahkan ini
 
 export default function LoginPage() {
   const router = useRouter();
@@ -11,28 +10,25 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage('');
+    setIsLoading(true);
 
-    const validUser = DUMMY_PENGGUNA.find(
-      (user) => user.email === email && user.password === password
-    );
+    const result = await signIn('credentials', {
+      email,
+      password,
+      redirect: false,
+    });
 
-    if (!validUser) {
+    if (result?.error) {
       setErrorMessage('Email atau password salah.');
-      return;
-    }
-
-    const isStaf = DUMMY_STAF.some((staf) => staf.email === email);
-
-    if (isStaf) {
-      alert('Login berhasil sebagai Staf!');
-      router.push('/staf/dashboard'); 
+      setIsLoading(false);
     } else {
-      alert('Login berhasil sebagai Member!');
-      router.push('/member/dashboard');
+      router.refresh(); 
+      router.push('/'); 
     }
   };
 
@@ -78,9 +74,10 @@ export default function LoginPage() {
           </div>
           <button
             type="submit"
-            className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-secondary mt-2 transition-colors"
+            disabled={isLoading}
+            className="w-full bg-primary text-white py-3 rounded-lg font-semibold hover:bg-secondary mt-2 transition-colors disabled:opacity-50"
           >
-            Log In
+            {isLoading ? 'Sedang Memuat...' : 'Log In'}
           </button>
           <p className="text-center text-sm text-text-muted">
             Belum punya akun?{' '}

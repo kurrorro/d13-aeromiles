@@ -1,25 +1,34 @@
 import type { Metadata } from "next";
 import { Poppins } from "next/font/google";
 import "./globals.css";
+import Navbar from "@/components/Navbar";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
 
 const poppins = Poppins({
-  variable: "--font-poppins",
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700"], 
+  variable: "--font-poppins",
 });
 
 export const metadata: Metadata = {
   title: "AeroMiles",
-  description: "Sistem Informasi AeroMiles",
+  description: "Sistem Manajemen Miles Penerbangan",
 };
 
 export default function RootLayout({
   children,
-}: Readonly<{ children: React.ReactNode }>) {
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="id">
-      <body className={`${poppins.variable} font-sans antialiased text-[#A8A7AB] bg-white`}>
-        {children}
+      <body className={`${poppins.variable} font-sans antialiased text-text-muted bg-bg-main`}>
+        <SessionProviderWrapper>
+          <Navbar />
+          <main className="min-h-screen bg-bg-subtle pb-12">
+            {children}
+          </main>
+        </SessionProviderWrapper>
       </body>
     </html>
   );
