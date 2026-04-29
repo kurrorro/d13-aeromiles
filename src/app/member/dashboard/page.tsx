@@ -6,8 +6,9 @@ export default function MemberDashboard() {
   const { data: session } = useSession();
 
   return (
-    <div className="max-w-7xl mx-auto px-6 pt-28 pb-12 font-sans bg-white min-h-screen">
-      <header className="mb-10">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 font-sans text-title">
+      <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[var(--color-border-light)] p-6 md:p-10">
+        <header className="mb-10">
         <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">
           Halo, {session?.user?.name}
         </h1>
@@ -82,6 +83,7 @@ export default function MemberDashboard() {
           </table>
         </div>
       </section>
+      </div>
     </div>
   );
 }

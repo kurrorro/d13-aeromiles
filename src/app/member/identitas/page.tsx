@@ -34,7 +34,7 @@ Tindakan ini permanen dan dokumen tidak dapat dikembalikan.`;
   });
 
   return (
-    <div className="p-8 md:p-12 font-sans max-w-7xl mx-auto text-title">
+    <div className="max-w-7xl mx-auto p-8 md:p-12 font-sans text-title">
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
         <div>
