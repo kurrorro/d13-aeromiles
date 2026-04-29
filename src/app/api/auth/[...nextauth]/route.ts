@@ -1,66 +1,46 @@
-import NextAuth, { NextAuthOptions } from 'next-auth';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import pool from '@/lib/db';
-import bcrypt from 'bcryptjs';
+import NextAuth, { NextAuthOptions } from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import { DUMMY_PENGGUNA } from "@/dummy/pengguna";
+import { DUMMY_STAF } from "@/dummy/staf";
 
 export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
-      name: 'Credentials',
+      name: "Credentials",
       credentials: {
-        email: { label: 'Email', type: 'email' },
-        password: { label: 'Password', type: 'password' },
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        if (!credentials?.email || !credentials?.password) return null;
-
-        // Cek di tabel PENGGUNA
-        const user = await pool.query(
-          'SELECT * FROM pengguna WHERE email = $1',
-          [credentials.email]
-        );
-        if (user.rows.length === 0) return null;
-
-        const valid = await bcrypt.compare(credentials.password, user.rows[0].password);
-        if (!valid) return null;
-
-        // Cek role: member atau staf?
-        const member = await pool.query(
-          'SELECT * FROM member WHERE email = $1', [credentials.email]
-        );
-        const staf = await pool.query(
-          'SELECT * FROM staf WHERE email = $1', [credentials.email]
+        const user = DUMMY_PENGGUNA.find(
+          (u) => u.email === credentials?.email && u.password === credentials?.password
         );
 
-        const role = member.rows.length > 0 ? 'member' : 
-                     staf.rows.length > 0 ? 'staf' : null;
-
-        if (!role) return null;
-
-        return {
-          id: credentials.email,
-          email: credentials.email,
-          name: `${user.rows[0].first_mid_name} ${user.rows[0].last_name}`,
-          role: role,
-        };
+        if (user) {
+          const isStaf = DUMMY_STAF.some((s) => s.email === user.email);
+          return {
+            id: user.email,
+            name: `${user.first_mid_name} ${user.last_name}`,
+            email: user.email,
+            role: isStaf ? "staf" : "member",
+          };
+        }
+        return null;
       },
     }),
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.role = (user as any).role;
+      if (user) token.role = user.role;
       return token;
     },
     async session({ session, token }) {
-      if (session.user) (session.user as any).role = token.role;
+      if (session.user) session.user.role = token.role as string;
       return session;
     },
   },
-  pages: {
-    signIn: '/login',
-  },
-  session: { strategy: 'jwt' },
-  secret: process.env.NEXTAUTH_SECRET,
+  pages: { signIn: '/auth/login' },
+  secret: process.env.NEXTAUTH_SECRET || "rahasia-bebas-apa-aja",
 };
 
 const handler = NextAuth(authOptions);

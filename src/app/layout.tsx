@@ -1,20 +1,33 @@
-import type { Metadata } from 'next';
-import './globals.css';
-import { SessionProviderWrapper } from '@/components/SessionProviderWrapper';
-import Navbar from '@/components/Navbar';
+import type { Metadata } from "next";
+import { Poppins } from "next/font/google";
+import "./globals.css";
+import Navbar from "@/components/Navbar";
+import SessionProviderWrapper from "@/components/SessionProviderWrapper";
+
+const poppins = Poppins({
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"], 
+  variable: "--font-poppins",
+});
 
 export const metadata: Metadata = {
-  title: 'AeroMiles',
-  description: 'Sistem Manajemen Miles',
+  title: "AeroMiles",
+  description: "Sistem Manajemen Miles Penerbangan",
 };
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
     <html lang="id">
-      <body>
+      <body className={`${poppins.variable} font-sans antialiased text-text-muted bg-bg-main`}>
         <SessionProviderWrapper>
           <Navbar />
-          <main className="p-6">{children}</main>
+          <main className="min-h-screen bg-bg-subtle pb-12">
+            {children}
+          </main>
         </SessionProviderWrapper>
       </body>
     </html>
