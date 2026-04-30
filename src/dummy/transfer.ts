@@ -14,4 +14,7 @@ export const DUMMY_TRANSFER = [
   { email_member_1: 'ujang.sopyan@email.com', nama_1: 'Mr. Ujang Sopyan', email_member_2: 'maya.sari@email.com', nama_2: 'Ms. Maya Sari', timestamp: '2025-04-10 16:00:00', jumlah: 2000, catatan: 'Kiriman rutin' },
   { email_member_1: 'yuni.astuti@email.com', nama_1: 'Ms. Yuni Astuti', email_member_2: 'nanda.putra@email.com', nama_2: 'Mr. Nanda Putra', timestamp: '2025-04-15 10:00:00', jumlah: 500, catatan: null },
   { email_member_1: 'tika.pradana@email.com', nama_1: 'Ms. Tika Pradana', email_member_2: 'olivia.tan@email.com', nama_2: 'Ms. Olivia Tan', timestamp: '2025-04-20 12:00:00', jumlah: 3000, catatan: 'Miles liburan bersama' },
+  { email_member_1: 'undyne@gmail.com', nama_1: 'Ms. Undyne The Undying', email_member_2: 'alice.johnson@email.com', nama_2: 'Ms. Alice Johnson', timestamp: '2025-04-25 15:00:00', jumlah: 1500, catatan: 'Bayar hutang miles' },
+  { email_member_1: 'budi.santoso@email.com', nama_1: 'Mr. Budi Santoso', email_member_2: 'undyne@gmail.com', nama_2: 'Ms. Undyne The Undying', timestamp: '2025-04-26 09:30:00', jumlah: 500, catatan: 'Patungan hadiah' },
+  { email_member_1: 'undyne@gmail.com', nama_1: 'Ms. Undyne The Undying', email_member_2: 'kevin.lim@email.com', nama_2: 'Mr. Kevin Lim', timestamp: '2025-04-28 14:15:00', jumlah: 200, catatan: null },
 ];
