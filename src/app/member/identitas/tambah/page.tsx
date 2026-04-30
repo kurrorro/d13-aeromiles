@@ -32,7 +32,7 @@ export default function TambahIdentitasPage() {
             <nav className="text-[10px] uppercase tracking-widest text-text-muted mb-2">
               Identitas / Tambah Baru
             </nav>
-            <h1 className="text-2xl font-bold text-primary">Daftar Dokumen Baru</h1>
+            <h1 className="text-2xl font-semibold text-[var(--color-primary)]">Daftar Dokumen Baru</h1>
           </div>
           <Link href="/member/identitas" className="w-fit px-5 py-2 text-sm font-semibold border border-border-light rounded-lg hover:bg-white transition-all text-center">
             Batal

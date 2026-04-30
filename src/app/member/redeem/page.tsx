@@ -55,7 +55,7 @@ export default function RedeemPage() {
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-start mb-10 gap-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight mb-1">Redeem Hadiah</h1>
+          <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Redeem Hadiah</h1>
           <p className="text-sm text-text-muted font-medium">Tukarkan miles Anda dengan berbagai hadiah menarik</p>
         </div>
 
@@ -149,3 +149,4 @@ export default function RedeemPage() {
     </div>
   );
 }
+

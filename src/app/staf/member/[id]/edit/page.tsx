@@ -27,7 +27,7 @@ export default function EditMemberPage() {
         
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-primary">Edit Member</h1>
+            <h1 className="text-2xl font-semibold text-[var(--color-primary)]">Edit Member</h1>
             <p className="text-sm text-text-muted">Nomor Member: <span className="font-mono font-bold text-title">{formData.nomor_member}</span></p>
           </div>
           <button 

@@ -48,7 +48,7 @@ export default function RegisterPage() {
       <div className="w-full max-w-2xl bg-white rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.08)] border border-border-light p-6 md:p-10">
         
         <div className="mb-8 text-center md:text-left">
-          <h1 className="text-2xl font-bold text-primary mb-1">Daftar Akun</h1>
+          <h1 className="text-2xl font-semibold text-[var(--color-primary)] mb-1">Daftar Akun</h1>
           <p className="text-text-muted text-sm">Lengkapi formulir di bawah untuk mendaftar AeroMiles</p>
         </div>
 

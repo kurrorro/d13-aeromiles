@@ -35,7 +35,7 @@ export default function EditIdentitasPage() {
             <nav className="text-[10px] uppercase tracking-widest text-text-muted mb-2">
               Identitas / Edit Data
             </nav>
-            <h1 className="text-2xl font-bold text-primary">Perbarui Dokumen</h1>
+            <h1 className="text-2xl font-semibold text-[var(--color-primary)]">Perbarui Dokumen</h1>
           </div>
           <Link href="/member/identitas" className="w-fit px-5 py-2 text-sm font-semibold border border-border-light rounded-lg hover:bg-white transition-all text-center">
             Kembali

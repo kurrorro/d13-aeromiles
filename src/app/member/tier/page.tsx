@@ -21,7 +21,7 @@ export default function InfoTierPage() {
   return (
     <div className="max-w-7xl mx-auto p-8 md:p-12 font-sans text-title">
       <div className="mb-10">
-        <h1 className="text-2xl font-bold tracking-tight mb-1">Informasi Tier</h1>
+        <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Informasi Tier</h1>
         <p className="text-sm text-text-muted font-medium">Pelajari tingkatan tier dan minimal penerbangan/miles</p>
       </div>
 
@@ -82,3 +82,4 @@ export default function InfoTierPage() {
     </div>
   );
 }
+

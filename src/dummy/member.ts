@@ -12,7 +12,7 @@ export const DUMMY_MEMBERS = [
     nomor_member: 'M0001', 
     tanggal_bergabung: '2024-01-10',
     id_tier: 'Platinum',
-    award_miles: 5000,
+    award_miles: 12000,
     total_miles: 15000
   },
   { 
@@ -28,7 +28,7 @@ export const DUMMY_MEMBERS = [
     nomor_member: 'M0002', 
     tanggal_bergabung: '2024-02-15',
     id_tier: 'Gold',
-    award_miles: 1200,
+    award_miles: 8500,
     total_miles: 8500
   },
   { 
@@ -44,7 +44,7 @@ export const DUMMY_MEMBERS = [
     nomor_member: 'M0003', 
     tanggal_bergabung: '2024-03-20',
     id_tier: 'Silver',
-    award_miles: 450,
+    award_miles: 3000,
     total_miles: 3000
   },
   { 
@@ -60,7 +60,7 @@ export const DUMMY_MEMBERS = [
     nomor_member: 'M0004', 
     tanggal_bergabung: '2024-04-05',
     id_tier: 'Blue',
-    award_miles: 0,
-    total_miles: 150
+    award_miles: 1500,
+    total_miles: 1500
   }
 ];

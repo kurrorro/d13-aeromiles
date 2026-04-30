@@ -125,9 +125,9 @@ export default function LaporanPage() {
           </div>
           
           <div className="flex border-b border-border-light text-xs font-semibold text-text-muted">
-            <button onClick={() => setTopTab('miles')} className={`flex-1 py-3 transition-colors ${topTab === 'miles' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Total Miles</button>
-            <button onClick={() => setTopTab('transfer')} className={`flex-1 py-3 transition-colors ${topTab === 'transfer' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Transfer</button>
-            <button onClick={() => setTopTab('redeem')} className={`flex-1 py-3 transition-colors ${topTab === 'redeem' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Redeem</button>
+            <button onClick={() => setTopTab('miles')} className={`flex-1 py-3 transition-colors cursor-pointer ${topTab === 'miles' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Total Miles</button>
+            <button onClick={() => setTopTab('transfer')} className={`flex-1 py-3 transition-colors cursor-pointer ${topTab === 'transfer' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Transfer</button>
+            <button onClick={() => setTopTab('redeem')} className={`flex-1 py-3 transition-colors cursor-pointer ${topTab === 'redeem' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Redeem</button>
           </div>
 
           <div className="p-5 flex flex-col gap-4">
@@ -178,3 +178,4 @@ export default function LaporanPage() {
     </div>
   );
 }
+

@@ -132,3 +132,4 @@ export default function DaftarMitra() {
     </div>
   );
 }
+

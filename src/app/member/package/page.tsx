@@ -28,7 +28,7 @@ export default function PackagePage() {
       
       <div className="flex flex-col md:flex-row justify-between items-start md:items-start mb-10 gap-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight mb-1">Beli Award Miles Package</h1>
+          <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Beli Award Miles Package</h1>
           <p className="text-sm text-text-muted font-medium">Tingkatkan Award Miles Anda dengan mudah</p>
         </div>
 
@@ -64,3 +64,4 @@ export default function PackagePage() {
     </div>
   );
 }
+
