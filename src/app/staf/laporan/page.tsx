@@ -12,6 +12,8 @@ import {
 export default function LaporanPage() {
   const [filterTipe, setFilterTipe] = useState('');
   const [searchMember, setSearchMember] = useState('');
+  const [filterDari, setFilterDari] = useState('');
+  const [filterSampai, setFilterSampai] = useState('');
   const [topTab, setTopTab] = useState<'miles' | 'transfer' | 'redeem'>('miles');
   const [transaksiList, setTransaksiList] = useState(DUMMY_TRANSAKSI);
 
@@ -28,7 +30,10 @@ export default function LaporanPage() {
   const filteredTransaksi = transaksiList.filter(t => {
     const matchTipe = filterTipe === '' || t.tipe.toLowerCase().includes(filterTipe.toLowerCase());
     const matchMember = searchMember === '' || t.member.toLowerCase().includes(searchMember.toLowerCase());
-    return matchTipe && matchMember;
+    const tDate = new Date(t.timestamp);
+    const matchDari = filterDari === '' || tDate >= new Date(filterDari);
+    const matchSampai = filterSampai === '' || tDate <= new Date(filterSampai + 'T23:59:59');
+    return matchTipe && matchMember && matchDari && matchSampai;
   });
 
   return (
@@ -59,13 +64,13 @@ export default function LaporanPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         <div className="lg:col-span-2">
-          <div className="flex flex-col sm:flex-row gap-4 mb-4">
+          <div className="flex flex-wrap gap-3 mb-4">
             <input 
               type="text" 
               placeholder="Cari Member..."
               value={searchMember}
               onChange={(e) => setSearchMember(e.target.value)}
-              className="flex-1 px-4 py-2 border border-border-light rounded-lg text-sm focus:outline-none focus:border-secondary bg-white"
+              className="flex-1 min-w-[160px] px-4 py-2 border border-border-light rounded-lg text-sm focus:outline-none focus:border-secondary bg-white"
             />
             <select 
               value={filterTipe}
@@ -78,6 +83,31 @@ export default function LaporanPage() {
               <option value="Package">Pembelian Package</option>
               <option value="Transfer">Transfer</option>
             </select>
+            <div className="flex items-center gap-2">
+              <input
+                type="date"
+                value={filterDari}
+                onChange={(e) => setFilterDari(e.target.value)}
+                className="px-3 py-2 border border-border-light rounded-lg text-sm focus:outline-none focus:border-secondary bg-white text-title"
+                title="Dari tanggal"
+              />
+              <span className="text-xs text-text-muted font-medium">s.d.</span>
+              <input
+                type="date"
+                value={filterSampai}
+                onChange={(e) => setFilterSampai(e.target.value)}
+                className="px-3 py-2 border border-border-light rounded-lg text-sm focus:outline-none focus:border-secondary bg-white text-title"
+                title="Sampai tanggal"
+              />
+            </div>
+            {(filterDari || filterSampai || filterTipe || searchMember) && (
+              <button
+                onClick={() => { setFilterDari(''); setFilterSampai(''); setFilterTipe(''); setSearchMember(''); }}
+                className="px-3 py-2 text-xs font-semibold text-[var(--color-text-muted)] border border-border-light rounded-lg hover:bg-bg-subtle transition-colors"
+              >
+                Reset
+              </button>
+            )}
           </div>
 
           <div className="bg-white rounded-lg border border-border-light overflow-x-auto">
