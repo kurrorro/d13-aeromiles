@@ -3,10 +3,10 @@ import { useParams } from 'next/navigation';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
-const STATUS_STYLE: Record<string, { pill: string; icon: string }> = {
-  Menunggu:  { pill: 'bg-[var(--color-warning-light)] text-[var(--color-warning)]',   icon: '🕐' },
-  Disetujui: { pill: 'bg-[var(--color-success-light)] text-[var(--color-success)]',   icon: '✅' },
-  Ditolak:   { pill: 'bg-[var(--color-danger-light)]  text-[var(--color-danger)]',    icon: '❌' },
+const STATUS_STYLE: Record<string, { pill: string }> = {
+  Menunggu:  { pill: 'bg-[var(--color-warning-light)] text-[var(--color-warning)]' },
+  Disetujui: { pill: 'bg-[var(--color-success-light)] text-[var(--color-success)]' },
+  Ditolak:   { pill: 'bg-[var(--color-danger-light)]  text-[var(--color-danger)]' },
 };
 
 const KELAS_STYLE: Record<string, string> = {
@@ -102,13 +102,13 @@ export default function DetailKlaimPage() {
           <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Diajukan pada {String(klaim.timestamp).slice(0, 19).replace('T', ' ')}</p>
         </header>
         <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${statusInfo.pill}`}>
-          {statusInfo.icon} {klaim.status_penerimaan}
+          {klaim.status_penerimaan}
         </span>
       </div>
 
       {/* Penerbangan Card */}
       <div className="bg-white border border-[var(--color-border-light)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6 mb-6">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-4">✈ Informasi Penerbangan</h2>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-4">Informasi Penerbangan</h2>
 
         {/* Route visual */}
         <div className="flex items-center justify-between gap-3 bg-[var(--color-bg-subtle)] rounded-lg p-4 mb-5">
@@ -117,7 +117,11 @@ export default function DetailKlaimPage() {
           </div>
           <div className="flex-1 flex flex-col items-center gap-1">
             <div className="w-full border-t-2 border-dashed border-[var(--color-border-light)] relative">
-              <span className="absolute left-1/2 -translate-x-1/2 -top-3 text-base">✈</span>
+              <span className="absolute left-1/2 -translate-x-1/2 -top-3 text-[var(--color-text-muted)] bg-[var(--color-bg-subtle)] px-2">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </span>
             </div>
             <p className="text-[10px] font-mono text-[var(--color-text-muted)] mt-2">{klaim.flight_number}</p>
           </div>
@@ -138,17 +142,17 @@ export default function DetailKlaimPage() {
 
       {/* Dokumen Card */}
       <div className="bg-white border border-[var(--color-border-light)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6 mb-6">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-4">📄 Dokumen & Referensi</h2>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-4">Dokumen & Referensi</h2>
         <InfoRow label="Nomor Tiket" value={<span className="font-mono">{klaim.nomor_tiket}</span>} />
         <InfoRow label="PNR" value={<span className="font-mono">{klaim.pnr}</span>} />
       </div>
 
       {/* Status Card */}
       <div className="bg-white border border-[var(--color-border-light)] rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.06)] p-6 mb-8">
-        <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-4">📋 Status Klaim</h2>
+        <h2 className="text-xs font-bold uppercase tracking-widest text-[var(--color-text-muted)] mb-4">Status Klaim</h2>
         <InfoRow label="Status" value={
           <span className={`inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold ${statusInfo.pill}`}>
-            {statusInfo.icon} {klaim.status_penerimaan}
+            {klaim.status_penerimaan}
           </span>
         } />
         <InfoRow label="Diproses oleh" value={
