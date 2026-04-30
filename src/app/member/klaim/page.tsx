@@ -72,19 +72,18 @@ export default function MemberKlaimPage() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto p-6 md:p-10 font-sans">
-
+    <div className="max-w-7xl mx-auto px-6 py-12 font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--color-title)] tracking-tight mb-1">Klaim Miles</h1>
-          <p className="text-sm text-[var(--color-text-muted)]">Kelola pengajuan klaim missing miles Anda</p>
-        </div>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 gap-4">
+        <header>
+          <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Klaim Miles</h1>
+          <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Kelola Riwayat Pengajuan Klaim Missing Miles Anda</p>
+        </header>
         <div className="flex items-center gap-3">
           <select
             value={filterStatus}
             onChange={e => setFilterStatus(e.target.value)}
-            className="px-3 py-2 text-sm border border-[var(--color-border-light)] rounded-lg focus:outline-none focus:border-[var(--color-secondary)] bg-white text-[var(--color-text-muted)] cursor-pointer"
+            className="px-4 py-2.5 text-xs border border-[var(--color-border-light)] rounded-lg focus:outline-none focus:border-[var(--color-secondary)] bg-white text-[var(--color-title)] cursor-pointer transition-colors"
           >
             <option value="">Semua Status</option>
             <option value="Menunggu">Menunggu</option>
@@ -93,22 +92,15 @@ export default function MemberKlaimPage() {
           </select>
           <Link
             href="/member/klaim/ajukan"
-            className="bg-[var(--color-primary)] text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-[var(--color-secondary)] transition-all shadow-sm"
+            className="bg-[var(--color-primary)] text-white px-5 py-2.5 rounded-lg text-[10px] font-bold uppercase tracking-widest hover:opacity-90 transition-opacity flex items-center gap-2"
           >
-            + Ajukan Klaim
+            <span className="text-base leading-none">+</span> AJUKAN KLAIM
           </Link>
         </div>
       </div>
 
-      {/* Info note */}
-      <div className="bg-[var(--color-success-light)] border-l-4 border-[var(--color-secondary)] rounded-lg p-4 mb-6">
-        <p className="text-sm text-[var(--color-title)]">
-          Anda hanya dapat mengedit atau membatalkan klaim dengan status <strong>Menunggu</strong>. Klaim yang sudah Disetujui atau Ditolak tidak dapat diubah.
-        </p>
-      </div>
-
       {/* Table */}
-      <div className="bg-white border border-[var(--color-border-light)] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-x-auto">
+      <div className="bg-white border border-[var(--color-border-light)] rounded-xl overflow-hidden shadow-sm">
         {loading ? (
           <div className="py-20 text-center">
             <p className="text-sm text-[var(--color-text-muted)] animate-pulse">Memuat data klaim...</p>
@@ -116,68 +108,69 @@ export default function MemberKlaimPage() {
         ) : (
           <table className="w-full text-left min-w-[900px]">
             <thead>
-              <tr className="border-b border-[var(--color-border-light)] bg-[var(--color-bg-subtle)]">
-                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">No. Klaim</th>
-                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Maskapai</th>
-                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Rute</th>
-                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Tgl Penerbangan</th>
-                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Flight</th>
-                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Kelas</th>
-                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Status</th>
-                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Timestamp</th>
-                <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] text-right">Aksi</th>
+              <tr className="bg-[var(--color-bg-subtle)] border-b border-[var(--color-border-light)]">
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">No. Klaim</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Maskapai</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Rute</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Tgl Terbang</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Status</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)] text-right">Aksi</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-border-light)]">
               {filtered.length > 0 ? filtered.map(k => (
                 <tr key={k.id} className="hover:bg-[var(--color-bg-subtle)] transition-colors">
-                  <td className="py-4 px-5">
-                    <Link href={`/member/klaim/${k.id}`} className="text-xs font-mono font-semibold text-[var(--color-primary)] hover:underline">#{k.id}</Link>
+                  <td className="py-5 px-6">
+                    <span className="text-xs font-mono font-bold text-[var(--color-primary)]">{k.id}</span>
                   </td>
-                  <td className="py-4 px-5">
+                  <td className="py-5 px-6">
                     <p className="text-xs font-semibold text-[var(--color-title)]">{k.maskapai}</p>
                     <p className="text-[10px] text-[var(--color-text-muted)]">{k.nama_maskapai}</p>
                   </td>
-                  <td className="py-4 px-5 text-xs text-[var(--color-title)] font-semibold">
-                    {k.bandara_asal} → {k.bandara_tujuan}
+                  <td className="py-5 px-6 text-xs text-[var(--color-title)] font-semibold">
+                    {k.bandara_asal} <span className="text-[var(--color-text-muted)] mx-1">→</span> {k.bandara_tujuan}
                   </td>
-                  <td className="py-4 px-5 text-xs text-[var(--color-text-muted)]">{k.tanggal_penerbangan}</td>
-                  <td className="py-4 px-5 text-xs font-mono text-[var(--color-text-muted)]">{k.flight_number}</td>
-                  <td className="py-4 px-5">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-[10px] font-semibold ${KELAS_STYLE[k.kelas_kabin]}`}>
-                      {k.kelas_kabin}
-                    </span>
-                  </td>
-                  <td className="py-4 px-5">
-                    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-semibold ${STATUS_STYLE[k.status_penerimaan]}`}>
+                  <td className="py-5 px-6 text-xs text-[var(--color-text-muted)] font-medium">{k.tanggal_penerbangan}</td>
+                  <td className="py-5 px-6">
+                    <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${k.status_penerimaan === 'Menunggu' ? 'text-[var(--color-warning)]' : k.status_penerimaan === 'Disetujui' ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'}`}>
                       {k.status_penerimaan}
                     </span>
                   </td>
-                  <td className="py-4 px-5 text-xs text-[var(--color-text-muted)]">{String(k.timestamp).slice(0, 19).replace('T', ' ')}</td>
-                  <td className="py-4 px-5 text-right">
-                    {k.status_penerimaan === 'Menunggu' ? (
-                      <div className="flex justify-end gap-2">
-                        <Link
-                          href={`/member/klaim/${k.id}/edit`}
-                          className="text-xs font-semibold text-blue-600 hover:text-blue-800 border border-blue-300 hover:border-blue-500 px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleBatalkan(k.id)}
-                          className="text-xs font-semibold text-[var(--color-danger)] hover:text-red-800 border border-[var(--color-danger)]/30 hover:border-[var(--color-danger)] px-3 py-1.5 rounded-lg transition-colors"
-                        >
-                          Batalkan
-                        </button>
-                      </div>
-                    ) : (
+                  <td className="py-5 px-6 text-right">
+                    <div className="flex justify-end gap-3">
                       <Link
                         href={`/member/klaim/${k.id}`}
-                        className="text-xs font-semibold text-[var(--color-text-muted)] hover:text-[var(--color-primary)] border border-[var(--color-border-light)] hover:border-[var(--color-primary)] px-3 py-1.5 rounded-lg transition-colors"
+                        title="Lihat Detail"
+                        className="text-[var(--color-primary)] hover:opacity-70 transition-opacity"
                       >
-                        Lihat
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
                       </Link>
-                    )}
+                      {k.status_penerimaan === 'Menunggu' && (
+                        <>
+                          <Link
+                            href={`/member/klaim/${k.id}/edit`}
+                            title="Edit"
+                            className="text-[var(--color-primary)] hover:opacity-70 transition-opacity"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                            </svg>
+                          </Link>
+                          <button
+                            onClick={() => handleBatalkan(k.id)}
+                            title="Batalkan"
+                            className="text-[var(--color-danger)] hover:opacity-70 transition-opacity"
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
+                          </button>
+                        </>
+                      )}
+                    </div>
                   </td>
                 </tr>
               )) : (

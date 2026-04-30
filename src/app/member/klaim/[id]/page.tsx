@@ -178,16 +178,13 @@ export default function DetailKlaimPage() {
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-3">
-        <Link href="/member/klaim" className="px-5 py-2.5 text-sm font-semibold border border-[var(--color-border-light)] rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] transition-colors">
-          ← Kembali
-        </Link>
-        {klaim.status_penerimaan === 'Menunggu' && (
+      {klaim.status_penerimaan === 'Menunggu' && (
+        <div className="flex items-center gap-3">
           <Link href={`/member/klaim/${id}/edit`} className="px-5 py-2.5 text-sm font-semibold bg-[var(--color-primary)] text-white rounded-lg hover:bg-[var(--color-secondary)] transition-all shadow-sm">
             Edit Klaim
           </Link>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
