@@ -22,7 +22,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="id">
-      <body className={`${poppins.variable} font-sans antialiased text-[var(--title)] bg-[var(--bg-subtle)]`}>
+      <body suppressHydrationWarning className={`${poppins.variable} font-sans antialiased text-[var(--title)] bg-[var(--bg-subtle)]`}>
         <SessionProviderWrapper>
           <Navbar />
           <main className="min-h-screen bg-bg-subtle pb-12">
