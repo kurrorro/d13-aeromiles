@@ -205,10 +205,6 @@ export default function StafKlaimDetailPage() {
             </label>
           </div>
           <div className="flex gap-3">
-            <Link href="/staf/klaim"
-              className="px-6 py-2.5 text-sm font-semibold border border-[var(--color-border-light)] rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] transition-colors">
-              Kembali
-            </Link>
             <button onClick={() => setShowConfirmModal(true)}
               className={`px-8 py-2.5 text-sm font-semibold rounded-lg text-white transition-all ${newStatus === 'Disetujui' ? 'bg-[var(--color-success)] hover:opacity-90' : 'bg-[var(--color-danger)] hover:opacity-90'}`}>
               {newStatus === 'Disetujui' ? 'Setujui Klaim' : 'Tolak Klaim'}
