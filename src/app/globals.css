@@ -1,23 +1,68 @@
 @import "tailwindcss";
 
-@theme {
-  --color-primary: #295943;
-  --color-secondary: #43B97F;
-  --color-title: #3D3E48;
-  --color-text-muted: #A8A7AB;
-  --color-bg-subtle: #F5F9F7;
-  --color-border-light: #E8EDE8;
+:root {
+  /* Aligned with tailwind.config.ts names */
+  --primary: #295943;
+  --secondary: #43B97F;
+  --title: #3D3E48;
+  --text-muted: #A8A7AB;
+  --bg-main: #FFFFFF;
+  --bg-subtle: #F5F9F7;
+  --border-light: #E8EDE8;
 
-  --color-success: #43B97F;
-  --color-success-light: #E8F8F1;
-  --color-warning: #F5A623;
-  --color-warning-light: #FEF3E2;
-  --color-danger: #E85454;
-  --color-danger-light: #FDEDED;
+  --success: #43B97F;
+  --success-light: #E8F8F1;
+  --warning: #F5A623;
+  --warning-light: #FEF3E2;
+  --danger: #E85454;
+  --danger-light: #FDEDED;
+
+  /* Aliases for compatibility with design_system.txt */
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-title: var(--title);
+  --color-text-muted: var(--text-muted);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-border-light: var(--border-light);
+  --color-success: var(--success);
+  --color-success-light: var(--success-light);
+  --color-warning: var(--warning);
+  --color-warning-light: var(--warning-light);
+  --color-danger: var(--danger);
+  --color-danger-light: var(--danger-light);
+}
+
+@theme {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-title: var(--title);
+  --color-text-muted: var(--text-muted);
+  --color-bg-subtle: var(--bg-subtle);
+  --color-border-light: var(--border-light);
+
+  --color-success: var(--success);
+  --color-success-light: var(--success-light);
+  --color-warning: var(--warning);
+  --color-warning-light: var(--warning-light);
+  --color-danger: var(--danger);
+  --color-danger-light: var(--danger-light);
+  
   --font-sans: var(--font-poppins), sans-serif;
 }
 
 body {
-  background-color: #FFFFFF;
-  color: var(--color-text-muted);
+  background-color: var(--bg-main);
+  color: var(--title);
+  font-family: var(--font-poppins), sans-serif;
 }
+
+/* Base Transition for better UX */
+* {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Custom Utilities to ensure visibility */
+.text-primary { color: var(--primary) !important; }
+.bg-primary { background-color: var(--primary) !important; }
+.text-secondary { color: var(--secondary) !important; }
+.bg-secondary { background-color: var(--secondary) !important; }
