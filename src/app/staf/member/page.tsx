@@ -113,12 +113,7 @@ export default function StaffMemberManagement() {
                 </td>
                 
                 <td className="px-6 py-4 text-center">
-                  <span className={`text-[11px] font-bold uppercase tracking-wider ${
-                    m.id_tier === 'Blue' ? 'text-blue-500' :
-                    m.id_tier === 'Silver' ? 'text-gray-400' :
-                    m.id_tier === 'Gold' ? 'text-yellow-500' :
-                    'text-purple-500'
-                  }`}>
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-primary)]">
                     {m.id_tier}
                   </span>
                 </td>

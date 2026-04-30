@@ -119,7 +119,7 @@ export default function LaporanPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-border-light overflow-hidden">
+        <div className="lg:col-span-1 bg-white rounded-lg border border-border-light overflow-hidden">
           <div className="p-5 border-b border-border-light bg-bg-subtle">
             <h2 className="text-sm font-bold tracking-wider uppercase text-title">Top Member</h2>
           </div>
