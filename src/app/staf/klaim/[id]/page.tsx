@@ -105,7 +105,7 @@ export default function StafKlaimDetailPage() {
 
       <div className="mb-10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <header>
-          <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Detail Klaim #{id}</h1>
+          <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Detail Klaim CLM-{String(id).padStart(3, '0')}</h1>
           <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Informasi lengkap pengajuan klaim missing miles</p>
         </header>
         <span className={`inline-flex items-center px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${STATUS_STYLE[currentStatus]}`}>
@@ -239,7 +239,7 @@ export default function StafKlaimDetailPage() {
               Konfirmasi {newStatus === 'Disetujui' ? 'Persetujuan' : 'Penolakan'} Klaim
             </h3>
             <p className="text-sm text-[var(--color-text-muted)] mb-5">
-              Anda akan <strong>{newStatus === 'Disetujui' ? 'menyetujui' : 'menolak'}</strong> klaim <strong>#{id}</strong> dari <strong>{klaim.nama_member || klaim.email_member}</strong>.
+              Anda akan <strong>{newStatus === 'Disetujui' ? 'menyetujui' : 'menolak'}</strong> klaim <strong>CLM-{String(id).padStart(3, '0')}</strong> dari <strong>{klaim.nama_member || klaim.email_member}</strong>.
               {newStatus === 'Disetujui' && ' Miles akan ditambahkan ke akun member setelah konfirmasi.'}
               {' '}Tindakan ini tidak dapat dibatalkan.
             </p>
