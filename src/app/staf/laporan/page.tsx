@@ -32,24 +32,24 @@ export default function LaporanPage() {
   });
 
   return (
-    <div className="p-8 md:p-12 font-sans max-w-7xl mx-auto text-title">
-      
+    <div className="max-w-7xl mx-auto p-4 md:p-8 font-sans text-title">
+      <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[var(--color-border-light)] p-6 md:p-10">
       <div className="mb-10">
-        <h1 className="text-2xl font-bold tracking-tight mb-1">Laporan & Riwayat Transaksi</h1>
-        <p className="text-sm text-text-muted font-medium">Pantau perputaran miles dalam sistem AeroMiles</p>
+        <h1 className="text-2xl font-semibold tracking-tight mb-1">Laporan & Riwayat Transaksi</h1>
+        <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Pantau perputaran miles dalam sistem AeroMiles</p>
       </div>
 
       {/* STAT CARDS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-white border-l-4 border-secondary rounded-lg p-6 shadow-sm">
+        <div className="bg-bg-subtle border-l-4 border-primary rounded-lg p-6">
           <p className="text-[10px] uppercase tracking-widest text-text-muted mb-2 font-bold">Total Miles Beredar</p>
           <p className="text-3xl font-bold text-title">{DUMMY_LAPORAN_STATISTIK.totalMilesBeredar.toLocaleString('id-ID')}</p>
         </div>
-        <div className="bg-white border-l-4 border-secondary rounded-lg p-6 shadow-sm">
+        <div className="bg-bg-subtle border-l-4 border-primary rounded-lg p-6">
           <p className="text-[10px] uppercase tracking-widest text-text-muted mb-2 font-bold">Total Redeem Bulan Ini</p>
           <p className="text-3xl font-bold text-title">{DUMMY_LAPORAN_STATISTIK.totalRedeemBulanIni.toLocaleString('id-ID')}</p>
         </div>
-        <div className="bg-white border-l-4 border-secondary rounded-lg p-6 shadow-sm">
+        <div className="bg-bg-subtle border-l-4 border-primary rounded-lg p-6">
           <p className="text-[10px] uppercase tracking-widest text-text-muted mb-2 font-bold">Total Klaim Disetujui</p>
           <p className="text-3xl font-bold text-title">{DUMMY_LAPORAN_STATISTIK.totalKlaimDisetujui.toLocaleString('id-ID')}</p>
         </div>
@@ -79,8 +79,8 @@ export default function LaporanPage() {
             </select>
           </div>
 
-          <div className="bg-white rounded-lg border border-border-light overflow-x-auto">
-            <table className="w-full text-left min-w-[600px]">
+          <div className="border-t border-border-light pt-5 overflow-x-auto">
+            <table className="w-full text-left border-collapse min-w-[600px]">
               <thead>
                 <tr className="border-b border-border-light bg-bg-subtle">
                   <th className="py-4 px-4 text-[10px] font-bold uppercase tracking-widest text-text-muted">Tipe Transaksi</th>
@@ -115,15 +115,15 @@ export default function LaporanPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-border-light overflow-hidden">
+        <div className="rounded-lg border border-border-light overflow-hidden">
           <div className="p-5 border-b border-border-light bg-bg-subtle">
             <h2 className="text-sm font-bold tracking-wider uppercase text-title">Top Member</h2>
           </div>
           
           <div className="flex border-b border-border-light text-xs font-semibold text-text-muted">
-            <button onClick={() => setTopTab('miles')} className={`flex-1 py-3 transition-colors ${topTab === 'miles' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Total Miles</button>
-            <button onClick={() => setTopTab('transfer')} className={`flex-1 py-3 transition-colors ${topTab === 'transfer' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Transfer</button>
-            <button onClick={() => setTopTab('redeem')} className={`flex-1 py-3 transition-colors ${topTab === 'redeem' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Redeem</button>
+            <button onClick={() => setTopTab('miles')} className={`flex-1 py-3 transition-colors ${topTab === 'miles' ? 'text-primary border-b-2 border-primary' : 'hover:text-primary'}`}>Total Miles</button>
+            <button onClick={() => setTopTab('transfer')} className={`flex-1 py-3 transition-colors ${topTab === 'transfer' ? 'text-primary border-b-2 border-primary' : 'hover:text-primary'}`}>Transfer</button>
+            <button onClick={() => setTopTab('redeem')} className={`flex-1 py-3 transition-colors ${topTab === 'redeem' ? 'text-primary border-b-2 border-primary' : 'hover:text-primary'}`}>Redeem</button>
           </div>
 
           <div className="p-5 flex flex-col gap-4">
@@ -170,6 +170,7 @@ export default function LaporanPage() {
 
       </div>
 
+      </div>
     </div>
   );
 }

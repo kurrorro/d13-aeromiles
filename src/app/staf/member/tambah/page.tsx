@@ -32,31 +32,20 @@ export default function AddMemberPage() {
   };
 
   return (
-    <div className="min-h-screen bg-bg-subtle p-6 md:p-12 font-sans text-title">
-      <div className="max-w-3xl mx-auto">
-        
-        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-          <div>
-            <nav className="text-[10px] uppercase tracking-widest text-text-muted mb-2">
-              Manajemen Member / Registrasi Baru
-            </nav>
-            <h1 className="text-2xl font-bold text-primary">Tambah Member Baru</h1>
-          </div>
-          <Link 
-            href="/staf/member" 
-            className="w-fit px-5 py-2 text-sm font-semibold border border-border-light rounded-lg hover:bg-white transition-all text-center"
-          >
-            Batal
-          </Link>
-        </div>
+    <div className="max-w-2xl mx-auto px-6 py-12">
+      <Link href="/staf/member" className="inline-flex items-center gap-2 text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest hover:text-[var(--color-primary)] transition-colors mb-8">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Kembali ke Daftar
+      </Link>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          
-          <div className="bg-white border border-border-light rounded-xl p-6 md:p-10 shadow-sm">
-            <h2 className="text-xs font-bold uppercase tracking-widest text-primary mb-8 flex items-center gap-2">
-              <span className="w-1.5 h-1.5 bg-primary rounded-full"></span>
-              Formulir Identitas Member
-            </h2>
+      <header className="mb-10">
+        <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Daftarkan Member Baru</h1>
+        <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Sistem akan otomatis mengatur konfigurasi awal profil Member</p>
+      </header>
+
+      <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[var(--color-border-light)] shadow-sm p-8 space-y-8">
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-10 gap-y-6">
               
@@ -175,23 +164,29 @@ export default function AddMemberPage() {
               </div>
             </div>
 
-            <div className="mt-12 p-4 bg-bg-subtle rounded-lg border border-border-light">
-              <p className="text-[11px] text-text-muted italic leading-relaxed">
-                * Nomor Member, Tanggal Bergabung, dan Tier awal (Blue) akan dikonfigurasi secara otomatis oleh sistem setelah formulir disimpan.
-              </p>
+            <div className="bg-[var(--color-bg-subtle)] p-4 rounded-lg border border-[var(--color-border-light)]">
+              <div className="flex gap-3">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-[var(--color-secondary)] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <div>
+                  <p className="text-[10px] font-bold text-[var(--color-title)] uppercase tracking-wider mb-1">Informasi Otomatis</p>
+                  <p className="text-[10px] text-[var(--color-text-muted)] leading-relaxed">
+                    Nomor Member, Tanggal Bergabung, dan Tier awal (Blue) akan dikonfigurasi secara otomatis oleh sistem.
+                  </p>
+                </div>
+              </div>
             </div>
-          </div>
 
-          <div className="flex justify-end pt-2">
+          <div className="pt-4">
             <button 
               type="submit"
-              className="w-full md:w-auto bg-primary text-white px-12 py-3 rounded-lg font-bold hover:bg-secondary transition-all shadow-md active:scale-95"
+              className="w-full bg-[var(--color-primary)] text-white py-3 rounded-lg text-[10px] font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all shadow-md active:scale-95"
             >
               Daftarkan Member
             </button>
           </div>
         </form>
-      </div>
     </div>
   );
 }

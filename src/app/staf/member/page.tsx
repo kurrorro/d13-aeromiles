@@ -36,15 +36,15 @@ export default function StaffMemberManagement() {
   });
 
   return (
-    <div className="p-8 md:p-12 font-sans max-w-7xl mx-auto text-title">
-      
+    <div className="max-w-7xl mx-auto p-4 md:p-8 font-sans text-title">
+      <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[var(--color-border-light)] p-6 md:p-10">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight mb-1">Manajemen Member</h1>
-          <p className="text-sm text-text-muted font-small">Kelola data keanggotaan AeroMiles</p>
+          <h1 className="text-2xl font-semibold tracking-tight mb-1">Manajemen Member</h1>
+          <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Kelola data keanggotaan AeroMiles</p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+        <div className="flex items-center gap-3 w-full md:w-auto">
           <input 
             type="text"
             placeholder="Cari nomor, nama, atau email..."
@@ -67,61 +67,65 @@ export default function StaffMemberManagement() {
 
           <Link 
             href="/staf/member/tambah" 
-            className="bg-primary text-white px-5 py-2 rounded-lg text-sm font-semibold hover:bg-secondary transition-all shadow-sm"
+            className="shrink-0 bg-primary hover:bg-secondary text-white px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
           >
-            + Member Baru
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Tambah Member
           </Link>
         </div>
       </div>
 
       {/* TABLE */}
-      <div className="overflow-x-auto">
-        <table className="w-full text-left min-w-[1000px]">
-          <thead>
-            <tr className="border-b border-border-light">
-              <th className="py-4 px-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">Nomor</th>
-              <th className="py-4 px-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">Nama Lengkap</th>
-              <th className="py-4 px-2 text-[10px] font-bold uppercase tracking-widest text-text-muted">Email</th>
-              <th className="py-4 px-2 text-[10px] font-bold uppercase tracking-widest text-text-muted text-center">Tier</th>
-              <th className="py-4 px-2 text-[10px] font-bold uppercase tracking-widest text-text-muted text-right">Total Miles</th>
-              <th className="py-4 px-2 text-[10px] font-bold uppercase tracking-widest text-text-muted text-right text-primary">Award</th>
-              <th className="py-4 px-2 text-[10px] font-bold uppercase tracking-widest text-text-muted text-center">Bergabung</th>
-              <th className="py-4 px-2 text-[10px] font-bold uppercase tracking-widest text-text-muted text-right">Aksi</th>
+      <div className="border-t border-[var(--color-border-light)] pt-5 overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left min-w-[1000px]">
+            <thead>
+              <tr className="bg-[var(--color-bg-subtle)] border-b border-border-light">
+              <th className="px-6 py-4 text-[10px] font-bold text-[var(--color-title)] uppercase tracking-wider">Nomor</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-[var(--color-title)] uppercase tracking-wider">Nama Lengkap</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-[var(--color-title)] uppercase tracking-wider">Email</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-[var(--color-title)] uppercase tracking-wider text-center">Tier</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-[var(--color-title)] uppercase tracking-wider text-right">Total Miles</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-[var(--color-title)] uppercase tracking-wider text-right text-primary">Award</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-[var(--color-title)] uppercase tracking-wider text-center">Bergabung</th>
+              <th className="px-6 py-4 text-[10px] font-bold text-[var(--color-title)] uppercase tracking-wider text-right">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border-light">
             {filteredMembers.map((m) => (
               <tr key={m.nomor_member} className="group hover:bg-bg-subtle transition-colors">
                 
-                <td className="py-5 px-2 text-xs font-mono font-medium text-text-muted">
+                <td className="px-6 py-4 text-xs font-mono font-medium text-[var(--color-primary)]">
                   {m.nomor_member}
                 </td>
 
-                <td className="py-5 px-2 font-semibold text-sm">
+                <td className="px-6 py-4 font-semibold text-[var(--color-title)] text-xs">
                   {m.salutation} {m.first_mid_name} {m.last_name}
                 </td>
                 
-                <td className="py-5 px-2 text-xs text-text-muted">
+                <td className="px-6 py-4 text-xs text-[var(--color-title)] font-medium">
                   {m.email}
                 </td>
                 
-                <td className="py-5 px-2 text-center text-[11px] font-bold tracking-wider uppercase">
+                <td className="px-6 py-4 text-center text-[11px] font-bold tracking-wider uppercase text-[var(--color-secondary)]">
                   {m.id_tier}
                 </td>
                 
-                <td className="py-5 px-2 text-right font-medium text-xs">
+                <td className="px-6 py-4 text-right font-bold text-[var(--color-title)] text-sm">
                   {m.total_miles.toLocaleString('id-ID')}
                 </td>
 
-                <td className="py-5 px-2 text-right font-bold text-primary text-xs">
+                <td className="px-6 py-4 text-right font-bold text-[var(--color-primary)] text-sm">
                   {m.award_miles.toLocaleString('id-ID')}
                 </td>
 
-                <td className="py-5 px-2 text-center text-[10px] text-text-muted uppercase">
+                <td className="px-6 py-4 text-center text-[10px] text-[var(--color-text-muted)]">
                   {m.tanggal_bergabung}
                 </td>
                 
-                <td className="py-5 px-2 text-right">
+                <td className="px-6 py-4 text-right">
                   <div className="flex justify-end gap-5">
                     <Link href={`/staf/member/${m.nomor_member}/edit`} className="text-text-muted hover:text-primary transition-colors" title="Edit">
                       <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -147,6 +151,8 @@ export default function StaffMemberManagement() {
             Data tidak ditemukan.
           </div>
         )}
+        </div>
+      </div>
       </div>
     </div>
   );
