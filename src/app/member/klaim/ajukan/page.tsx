@@ -87,17 +87,18 @@ export default function AjukanKlaimPage() {
     errors[field] ? <p className="text-xs text-[var(--color-danger)] mt-1">{errors[field]}</p> : null;
 
   return (
-    <div className="max-w-3xl mx-auto p-6 md:p-10 font-sans">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] mb-3">
-          <Link href="/member/klaim" className="hover:text-[var(--color-primary)] transition-colors">Klaim Miles</Link>
-          <span>/</span>
-          <span>Ajukan Klaim</span>
-        </div>
-        <h1 className="text-2xl font-bold text-[var(--color-title)] tracking-tight mb-1">Ajukan Klaim Miles</h1>
-        <p className="text-sm text-[var(--color-text-muted)]">Isi data penerbangan untuk mengajukan klaim missing miles</p>
-      </div>
+    <div className="max-w-3xl mx-auto px-6 py-12 font-sans">
+      <Link href="/member/klaim" className="inline-flex items-center gap-2 text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest hover:text-[var(--color-primary)] transition-colors mb-8">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Kembali ke Daftar
+      </Link>
+
+      <header className="mb-10">
+        <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Ajukan Klaim Miles</h1>
+        <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Isi data penerbangan untuk mengajukan klaim missing miles</p>
+      </header>
 
       {/* Info Note */}
       <div className="bg-[var(--color-success-light)] border-l-4 border-[var(--color-secondary)] rounded-lg p-4 mb-8">

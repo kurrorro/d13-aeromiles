@@ -133,18 +133,18 @@ export default function BuatTransferPage() {
   const memberName = member ? `${member.salutation} ${member.first_mid_name} ${member.last_name}` : '...';
 
   return (
-    <div className="max-w-2xl mx-auto p-6 md:p-10 font-sans">
-      {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-xs text-[var(--color-text-muted)] mb-6">
-        <Link href="/member/transfer" className="hover:text-[var(--color-primary)] transition-colors">Transfer Miles</Link>
-        <span>/</span>
-        <span>Transfer Baru</span>
-      </div>
+    <div className="max-w-2xl mx-auto px-6 py-12 font-sans">
+      <Link href="/member/transfer" className="inline-flex items-center gap-2 text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest hover:text-[var(--color-primary)] transition-colors mb-8">
+        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+        Kembali ke Daftar
+      </Link>
 
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[var(--color-title)] tracking-tight mb-1">Transfer Miles</h1>
-        <p className="text-sm text-[var(--color-text-muted)]">Kirim award miles ke member AeroMiles lain</p>
-      </div>
+      <header className="mb-10">
+        <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Transfer Miles</h1>
+        <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Kirim award miles ke member AeroMiles lain</p>
+      </header>
 
       {/* Balance Card */}
       <div className="bg-[var(--color-bg-subtle)] border border-[var(--color-border-light)] rounded-lg p-5 mb-8 flex items-center justify-between">
