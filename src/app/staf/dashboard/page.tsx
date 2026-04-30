@@ -64,19 +64,6 @@ export default function StaffDashboard() {
         </div>
       </section>
 
-      <section>
-        <h2 className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-[0.2em] mb-3">Navigasi Operasional</h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button className="flex items-center justify-between p-3.5 border border-[var(--color-border-light)] rounded hover:bg-[var(--color-bg-subtle)] transition-all">
-            <span className="text-[11px] font-bold text-[var(--color-title)] uppercase tracking-tight">Kelola Missing Miles</span>
-            <span className="text-[11px] text-[var(--color-primary)]">→</span>
-          </button>
-          <button className="flex items-center justify-between p-3.5 border border-[var(--color-border-light)] rounded hover:bg-[var(--color-bg-subtle)] transition-all">
-            <span className="text-[11px] font-bold text-[var(--color-title)] uppercase tracking-tight">Database Member</span>
-            <span className="text-[11px] text-[var(--color-primary)]">→</span>
-          </button>
-        </div>
-      </section>
       </div>
     </div>
   );
