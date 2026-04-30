@@ -11,17 +11,27 @@ export default function PengaturanProfil() {
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
-  // In a real app, these would be fetched from an API
   const [formData, setFormData] = useState({
     salutation: 'Mr.',
-    first_mid_name: 'Keisha',
-    last_name: 'Putri',
+    first_mid_name: '',
+    last_name: '',
     country_code: '+62',
     mobile_number: '8123456789',
     kewarganegaraan: 'Indonesia',
     tanggal_lahir: '2004-05-12',
     kode_maskapai: 'GA'
   });
+
+  useEffect(() => {
+    if (session?.user?.name) {
+      const names = session.user.name.split(' ');
+      setFormData(prev => ({
+        ...prev,
+        first_mid_name: names[0] || '',
+        last_name: names.slice(1).join(' ') || ''
+      }));
+    }
+  }, [session]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,8 +43,9 @@ export default function PengaturanProfil() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
-      <header className="mb-10">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 font-sans text-title">
+      <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[var(--color-border-light)] p-6 md:p-10">
+      <header className="mb-10 border-b border-[var(--color-border-light)] pb-8">
         <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Pengaturan Profil</h1>
         <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Kelola informasi pribadi dan keamanan akun {isStaf ? 'Staf' : 'Member'}</p>
       </header>
@@ -43,17 +54,17 @@ export default function PengaturanProfil() {
         
         {/* LEFT: Info & Avatar */}
         <div className="lg:col-span-1 space-y-8">
-          <section className="bg-white rounded-xl border border-[var(--color-border-light)] shadow-sm p-8 text-center">
+          <section className="text-center">
             <div className="w-24 h-24 rounded-full bg-[var(--color-bg-subtle)] border-2 border-[var(--color-secondary)] flex items-center justify-center font-bold text-3xl text-[var(--color-primary)] mx-auto mb-4 shadow-inner">
-              {session?.user?.name?.charAt(0).toUpperCase()}
+              {session?.user?.name?.charAt(0).toUpperCase() || 'U'}
             </div>
-            <h2 className="text-lg font-bold text-[var(--color-title)] mb-1">{session?.user?.name}</h2>
-            <p className="text-xs text-[var(--color-text-muted)] mb-6">{session?.user?.email}</p>
+            <h2 className="text-lg font-bold text-[var(--color-title)] mb-1">{session?.user?.name || 'User'}</h2>
+            <p className="text-xs text-[var(--color-text-muted)] mb-6">{session?.user?.email || 'email@example.com'}</p>
             
             <div className="pt-6 border-t border-[var(--color-border-light)] grid grid-cols-2 gap-4 text-left">
               <div>
                 <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block mb-1">Status</label>
-                <p className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider">{session?.user?.role}</p>
+                <p className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider">{session?.user?.role || 'Member'}</p>
               </div>
               {isStaf ? (
                 <div>
@@ -70,7 +81,7 @@ export default function PengaturanProfil() {
           </section>
 
           {/* Password Section */}
-          <section className="bg-white rounded-xl border border-[var(--color-border-light)] shadow-sm p-8">
+          <section className="pt-8 border-t border-[var(--color-border-light)]">
             <h3 className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-[0.2em] mb-6">Keamanan Akun</h3>
             {!showPasswordForm ? (
               <button 
@@ -104,7 +115,7 @@ export default function PengaturanProfil() {
 
         {/* RIGHT: Form */}
         <div className="lg:col-span-2">
-          <form onSubmit={handleSubmit} className="bg-white rounded-xl border border-[var(--color-border-light)] shadow-sm p-10 space-y-10">
+          <form onSubmit={handleSubmit} className="lg:pl-12 lg:border-l border-[var(--color-border-light)] space-y-10">
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8">
               <div className="md:col-span-2 opacity-60">
@@ -222,6 +233,7 @@ export default function PengaturanProfil() {
           </form>
         </div>
 
+      </div>
       </div>
     </div>
   );

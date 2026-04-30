@@ -33,7 +33,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center font-sans pb-10">
+    <div className="min-h-screen py-10 px-4 flex items-start justify-center font-sans">
       <div className="bg-white p-8 rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.08)] w-full max-w-md border border-border-light">
         <h1 className="text-3xl font-bold text-primary mb-2 text-center">AeroMiles</h1>
         <p className="text-text-muted text-center mb-8 font-medium">Masuk ke akun Anda</p>

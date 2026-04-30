@@ -22,15 +22,16 @@ export default function DaftarMitra() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
-      <header className="flex justify-between items-end mb-10">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 font-sans text-title">
+      <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[var(--color-border-light)] p-6 md:p-10">
+      <header className="flex justify-between items-end mb-10 border-b border-[var(--color-border-light)] pb-5">
         <div>
           <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Manajemen Mitra</h1>
           <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Kelola data mitra penyedia hadiah AeroMiles</p>
         </div>
         <Link 
           href="/staf/mitra/tambah"
-          className="bg-[var(--color-secondary)] hover:bg-[var(--color-primary)] text-white px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
+          className="bg-[var(--color-primary)] hover:opacity-90 text-white px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
         >
           <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -39,7 +40,7 @@ export default function DaftarMitra() {
         </Link>
       </header>
 
-      <div className="bg-white rounded-xl border border-[var(--color-border-light)] shadow-sm overflow-hidden">
+      <div className="overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left">
             <thead>
@@ -58,7 +59,7 @@ export default function DaftarMitra() {
                     <p className="text-xs font-medium text-[var(--color-title)]">{item.email_mitra}</p>
                   </td>
                   <td className="px-6 py-4">
-                    <span className="text-xs font-mono font-bold text-[var(--color-primary)] bg-[var(--color-bg-subtle)] px-2 py-1 rounded">
+                    <span className="text-xs font-mono font-bold text-[var(--color-primary)]">
                       #{item.id_penyedia}
                     </span>
                   </td>
@@ -72,15 +73,21 @@ export default function DaftarMitra() {
                     <div className="flex justify-end gap-3">
                       <Link 
                         href={`/staf/mitra/${encodeURIComponent(item.email_mitra)}/edit`}
-                        className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider hover:underline"
+                        className="text-[var(--color-primary)] hover:opacity-70 transition-opacity"
+                        title="Edit"
                       >
-                        Edit
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
                       </Link>
                       <button 
                         onClick={() => setShowDeleteConfirm(item.email_mitra)}
-                        className="text-[10px] font-bold text-[var(--color-danger)] uppercase tracking-wider hover:underline"
+                        className="text-[var(--color-danger)] hover:opacity-70 transition-opacity"
+                        title="Hapus"
                       >
-                        Hapus
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                       </button>
                     </div>
                   </td>
@@ -121,6 +128,7 @@ export default function DaftarMitra() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

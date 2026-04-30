@@ -34,55 +34,51 @@ export default function DaftarHadiah() {
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-6 py-12">
-      <header className="flex justify-between items-end mb-10">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 font-sans text-title">
+      <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[var(--color-border-light)] p-6 md:p-10">
+      
+      <header className="flex flex-col lg:flex-row lg:items-end justify-between gap-6 mb-8 border-b border-[var(--color-border-light)] pb-5">
         <div>
           <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Katalog Hadiah & Penyedia</h1>
           <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Kelola hadiah yang tersedia untuk ditukarkan oleh Member</p>
         </div>
-        <Link 
-          href="/staf/hadiah/tambah"
-          className="bg-[var(--color-secondary)] hover:bg-[var(--color-primary)] text-white px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Tambah Hadiah
-        </Link>
+        
+        <div className="flex items-center gap-4 w-full lg:w-auto">
+          <div>
+            <select 
+              value={filterPenyedia}
+              onChange={(e) => setFilterPenyedia(e.target.value)}
+              className="w-full lg:w-auto border border-[var(--color-border-light)] rounded-lg px-4 py-2 text-xs focus:border-[var(--color-primary)] outline-none font-medium bg-white"
+            >
+              <option>Semua Penyedia</option>
+              <option>Garuda Indonesia</option>
+              <option>Lion Air</option>
+              <option>Hotel Santika</option>
+              <option>Restoran Padang Sederhana</option>
+            </select>
+          </div>
+          <div>
+            <select 
+              value={filterStatus}
+              onChange={(e) => setFilterStatus(e.target.value)}
+              className="w-full lg:w-auto border border-[var(--color-border-light)] rounded-lg px-4 py-2 text-xs focus:border-[var(--color-primary)] outline-none font-medium bg-white"
+            >
+              <option>Semua Status</option>
+              <option>Aktif</option>
+              <option>Expired</option>
+            </select>
+          </div>
+          <Link 
+            href="/staf/hadiah/tambah"
+            className="shrink-0 bg-[var(--color-primary)] hover:opacity-90 text-white px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all shadow-sm flex items-center gap-2"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Tambah Hadiah
+          </Link>
+        </div>
       </header>
-
-      {/* FILTERS */}
-      <div className="bg-white p-6 rounded-xl border border-[var(--color-border-light)] shadow-sm mb-8 flex flex-wrap gap-8 items-end">
-        <div className="w-64">
-          <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block mb-2">Filter Penyedia</label>
-          <select 
-            value={filterPenyedia}
-            onChange={(e) => setFilterPenyedia(e.target.value)}
-            className="w-full border-b border-[var(--color-border-light)] py-1.5 text-xs focus:border-[var(--color-secondary)] outline-none bg-transparent font-medium"
-          >
-            <option>Semua</option>
-            <option>Garuda Indonesia</option>
-            <option>Lion Air</option>
-            <option>Hotel Santika</option>
-            <option>Restoran Padang Sederhana</option>
-          </select>
-        </div>
-        <div className="w-48">
-          <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block mb-2">Status</label>
-          <select 
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="w-full border-b border-[var(--color-border-light)] py-1.5 text-xs focus:border-[var(--color-secondary)] outline-none bg-transparent font-medium"
-          >
-            <option>Semua</option>
-            <option>Aktif</option>
-            <option>Expired</option>
-          </select>
-        </div>
-        <div className="flex-1 flex justify-end">
-          <p className="text-[10px] text-[var(--color-text-muted)] font-medium">Menampilkan {filteredHadiah.length} hadiah</p>
-        </div>
-      </div>
 
       <div className="bg-white rounded-xl border border-[var(--color-border-light)] shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
@@ -117,10 +113,10 @@ export default function DaftarHadiah() {
                     <p className="text-[10px] text-[var(--color-text-muted)]">{item.valid_start} s.d {item.program_end}</p>
                   </td>
                   <td className="px-6 py-4 text-center">
-                    <span className={`text-[9px] font-bold px-2 py-1 rounded uppercase tracking-wider ${
+                    <span className={`text-xs font-bold uppercase tracking-wider ${
                       item.active 
-                        ? 'bg-[var(--color-success-light)] text-[var(--color-success)]' 
-                        : 'bg-[var(--color-danger-light)] text-[var(--color-danger)]'
+                        ? 'text-[var(--color-success)]' 
+                        : 'text-[var(--color-danger)]'
                     }`}>
                       {item.active ? 'Aktif' : 'Expired'}
                     </span>
@@ -129,20 +125,25 @@ export default function DaftarHadiah() {
                     <div className="flex justify-end gap-3">
                       <Link 
                         href={`/staf/hadiah/${item.kode_hadiah}/edit`}
-                        className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-wider hover:underline"
+                        className="text-[var(--color-primary)] hover:opacity-70 transition-opacity"
+                        title="Edit"
                       >
-                        Edit
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
                       </Link>
                       <button 
                         onClick={() => handleDelete(item.kode_hadiah)}
-                        className={`text-[10px] font-bold uppercase tracking-wider transition-colors ${
+                        className={`transition-opacity ${
                           item.active 
-                            ? 'text-[var(--color-text-muted)] cursor-not-allowed' 
-                            : 'text-[var(--color-danger)] hover:underline'
+                            ? 'text-[var(--color-border-light)] cursor-not-allowed' 
+                            : 'text-[var(--color-danger)] hover:opacity-70'
                         }`}
-                        title={item.active ? "Hadiah aktif tidak dapat dihapus" : ""}
+                        title={item.active ? "Hadiah aktif tidak dapat dihapus" : "Hapus"}
                       >
-                        Hapus
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                       </button>
                     </div>
                   </td>
@@ -151,6 +152,7 @@ export default function DaftarHadiah() {
             </tbody>
           </table>
         </div>
+      </div>
       </div>
     </div>
   );

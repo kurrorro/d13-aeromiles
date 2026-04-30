@@ -32,11 +32,12 @@ export default function LaporanPage() {
   });
 
   return (
-    <div className="p-8 md:p-12 font-sans max-w-7xl mx-auto text-title">
+    <div className="max-w-7xl mx-auto p-4 md:p-8 font-sans text-title">
+      <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[var(--color-border-light)] p-6 md:p-10">
       
-      <div className="mb-10">
-        <h1 className="text-2xl font-bold tracking-tight mb-1">Laporan & Riwayat Transaksi</h1>
-        <p className="text-sm text-text-muted font-medium">Pantau perputaran miles dalam sistem AeroMiles</p>
+      <div className="mb-10 border-b border-[var(--color-border-light)] pb-5">
+        <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Laporan & Riwayat Transaksi</h1>
+        <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Pantau perputaran miles dalam sistem AeroMiles</p>
       </div>
 
       {/* STAT CARDS */}
@@ -103,9 +104,12 @@ export default function LaporanPage() {
                       <button 
                         onClick={() => handleDelete(t.id, t.tipe)}
                         disabled={t.tipe === 'Klaim Disetujui'}
-                        className={`text-sm font-medium ${t.tipe === 'Klaim Disetujui' ? 'text-border-light cursor-not-allowed' : 'text-danger hover:underline'}`}
+                        className={t.tipe === 'Klaim Disetujui' ? 'text-[var(--color-border-light)] cursor-not-allowed' : 'text-[var(--color-danger)] hover:opacity-70 transition-opacity'}
+                        title="Hapus"
                       >
-                        Hapus
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
                       </button>
                     </td>
                   </tr>
@@ -170,6 +174,7 @@ export default function LaporanPage() {
 
       </div>
 
+      </div>
     </div>
   );
 }
