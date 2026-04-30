@@ -60,7 +60,7 @@ export default function DaftarMitra() {
                   </td>
                   <td className="px-6 py-4">
                     <span className="text-xs font-mono font-bold text-[var(--color-primary)]">
-                      #{item.id_penyedia}
+                      {item.id_penyedia}
                     </span>
                   </td>
                   <td className="px-6 py-4">
