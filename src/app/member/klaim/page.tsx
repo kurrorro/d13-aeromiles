@@ -109,11 +109,14 @@ export default function MemberKlaimPage() {
           <table className="w-full text-left min-w-[900px]">
             <thead>
               <tr className="bg-[var(--color-bg-subtle)] border-b border-[var(--color-border-light)]">
-                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">No. Klaim</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Nomor Klaim</th>
                 <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Maskapai</th>
-                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Rute</th>
-                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Tgl Terbang</th>
-                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Status</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Rute (Asal → Tujuan)</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Tanggal Penerbangan</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Flight Number</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Kelas Kabin</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Status Penerimaan</th>
+                <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)]">Timestamp Pengajuan</th>
                 <th className="py-4 px-6 text-[10px] font-bold uppercase tracking-widest text-[var(--color-title)] text-right">Aksi</th>
               </tr>
             </thead>
@@ -121,7 +124,7 @@ export default function MemberKlaimPage() {
               {filtered.length > 0 ? filtered.map(k => (
                 <tr key={k.id} className="hover:bg-[var(--color-bg-subtle)] transition-colors">
                   <td className="py-5 px-6">
-                    <span className="text-xs font-mono font-bold text-[var(--color-primary)]">{k.id}</span>
+                    <span className="text-xs font-mono font-bold text-[var(--color-primary)]">CLM-{String(k.id).padStart(3, '0')}</span>
                   </td>
                   <td className="py-5 px-6">
                     <p className="text-xs font-semibold text-[var(--color-title)]">{k.maskapai}</p>
@@ -131,11 +134,18 @@ export default function MemberKlaimPage() {
                     {k.bandara_asal} <span className="text-[var(--color-text-muted)] mx-1">→</span> {k.bandara_tujuan}
                   </td>
                   <td className="py-5 px-6 text-xs text-[var(--color-text-muted)] font-medium">{k.tanggal_penerbangan}</td>
+                  <td className="py-5 px-6 text-xs font-mono text-[var(--color-text-muted)]">{k.flight_number}</td>
+                  <td className="py-5 px-6">
+                    <span className={`inline-flex px-2 py-0.5 rounded text-[10px] font-semibold ${KELAS_STYLE[k.kelas_kabin]}`}>
+                      {k.kelas_kabin}
+                    </span>
+                  </td>
                   <td className="py-5 px-6">
                     <span className={`inline-flex items-center px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${k.status_penerimaan === 'Menunggu' ? 'text-[var(--color-warning)]' : k.status_penerimaan === 'Disetujui' ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'}`}>
                       {k.status_penerimaan}
                     </span>
                   </td>
+                  <td className="py-5 px-6 text-xs text-[var(--color-text-muted)] font-medium">{String(k.timestamp).slice(0, 10)}</td>
                   <td className="py-5 px-6 text-right">
                     <div className="flex justify-end gap-3">
                       <Link
@@ -199,7 +209,7 @@ export default function MemberKlaimPage() {
               <div>
                 <h3 className="text-base font-bold text-[var(--color-title)] mb-1">Batalkan Klaim</h3>
                 <p className="text-sm text-[var(--color-text-muted)]">
-                  Apakah Anda yakin ingin membatalkan klaim <strong>#{selectedId}</strong>? Tindakan ini permanen dan tidak dapat dibatalkan.
+                  Apakah Anda yakin ingin membatalkan klaim <strong>CLM-{String(selectedId).padStart(3, '0')}</strong>? Tindakan ini permanen dan tidak dapat dibatalkan.
                 </p>
               </div>
             </div>

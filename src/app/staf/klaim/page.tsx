@@ -49,7 +49,7 @@ export default function StafKlaimPage() {
   const filtered = klaim.filter(k => {
     const matchStatus   = filterStatus === '' || k.status_penerimaan === filterStatus;
     const matchMaskapai = filterMaskapai === '' || k.maskapai === filterMaskapai;
-    const tgl = k.tanggal_penerbangan;
+    const tgl = String(k.timestamp).slice(0, 10);
     const matchDari     = filterTanggalDari === '' || tgl >= filterTanggalDari;
     const matchSampai   = filterTanggalSampai === '' || tgl <= filterTanggalSampai;
     return matchStatus && matchMaskapai && matchDari && matchSampai;
@@ -88,12 +88,12 @@ export default function StafKlaimPage() {
             </select>
           </div>
           <div>
-            <label className="block text-xs font-medium text-[var(--color-title)] mb-1.5">Tanggal Dari</label>
+            <label className="block text-xs font-medium text-[var(--color-title)] mb-1.5">Tanggal Pengajuan (Dari)</label>
             <input type="date" value={filterTanggalDari} onChange={e => setFilterTanggalDari(e.target.value)}
               className="w-full border border-[var(--color-border-light)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-secondary)] bg-white" />
           </div>
           <div>
-            <label className="block text-xs font-medium text-[var(--color-title)] mb-1.5">Tanggal Sampai</label>
+            <label className="block text-xs font-medium text-[var(--color-title)] mb-1.5">Tanggal Pengajuan (Sampai)</label>
             <input type="date" value={filterTanggalSampai} onChange={e => setFilterTanggalSampai(e.target.value)}
               className="w-full border border-[var(--color-border-light)] rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-[var(--color-secondary)] bg-white" />
           </div>
@@ -136,7 +136,7 @@ export default function StafKlaimPage() {
             <tbody className="divide-y divide-[var(--color-border-light)]">
               {filtered.length > 0 ? filtered.map(k => (
                 <tr key={k.id} className="hover:bg-[var(--color-bg-subtle)] transition-colors">
-                  <td className="py-4 px-5 text-xs font-mono text-[var(--color-text-muted)]">#{k.id}</td>
+                  <td className="py-4 px-5 text-xs font-mono text-[var(--color-text-muted)]">CLM-{String(k.id).padStart(3, '0')}</td>
                   <td className="py-4 px-5">
                     <p className="text-xs font-semibold text-[var(--color-title)]">{k.nama_member || k.email_member}</p>
                     <p className="text-[10px] text-[var(--color-text-muted)]">{k.email_member}</p>

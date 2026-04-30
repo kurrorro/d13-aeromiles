@@ -75,7 +75,7 @@ export default function DetailKlaimPage() {
       <div className="max-w-3xl mx-auto p-10 font-sans text-center">
         <div className="bg-[var(--color-danger-light)] border border-[var(--color-danger)]/30 rounded-xl p-8">
           <p className="text-lg font-bold text-[var(--color-danger)] mb-2">Klaim Tidak Ditemukan</p>
-          <p className="text-sm text-[var(--color-text-muted)] mb-6">Klaim dengan ID #{id} tidak ada atau sudah dihapus.</p>
+          <p className="text-sm text-[var(--color-text-muted)] mb-6">Klaim dengan ID CLM-{String(id).padStart(3, '0')} tidak ada atau sudah dihapus.</p>
           <Link href="/member/klaim" className="inline-flex items-center gap-2 text-sm font-semibold text-[var(--color-secondary)] hover:underline">
             ← Kembali ke Daftar Klaim
           </Link>
@@ -98,7 +98,7 @@ export default function DetailKlaimPage() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-10">
         <header>
-          <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Detail Klaim #{id}</h1>
+          <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Detail Klaim CLM-{String(id).padStart(3, '0')}</h1>
           <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Diajukan pada {String(klaim.timestamp).slice(0, 19).replace('T', ' ')}</p>
         </header>
         <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest ${statusInfo.pill}`}>

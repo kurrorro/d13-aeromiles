@@ -162,7 +162,7 @@ export default function EditKlaimPage() {
       </Link>
 
       <header className="mb-10">
-        <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Edit Klaim #{id}</h1>
+        <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Edit Klaim CLM-{String(id).padStart(3, '0')}</h1>
         <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.2em] mt-1">Perbarui data klaim yang masih berstatus Menunggu</p>
       </header>
 
