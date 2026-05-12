@@ -5,41 +5,103 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 
 export default function PengaturanProfil() {
-  const { data: session } = useSession();
+  const { data: session, update } = useSession();
   const isStaf = session?.user?.role === 'staf';
 
   const [showPasswordForm, setShowPasswordForm] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [isSavingPassword, setIsSavingPassword] = useState(false);
+
+  const [profileData, setProfileData] = useState<any>(null);
+  const [maskapaiList, setMaskapaiList] = useState<{kode_maskapai: string, nama_maskapai: string}[]>([]);
 
   const [formData, setFormData] = useState({
     salutation: 'Mr.',
     first_mid_name: '',
     last_name: '',
-    country_code: '+62',
-    mobile_number: '8123456789',
-    kewarganegaraan: 'Indonesia',
-    tanggal_lahir: '2004-05-12',
-    kode_maskapai: 'GA'
+    country_code: '',
+    mobile_number: '',
+    kewarganegaraan: '',
+    tanggal_lahir: '',
+    kode_maskapai: ''
+  });
+
+  const [passwordData, setPasswordData] = useState({
+    oldPassword: '',
+    newPassword: '',
+    confirmPassword: ''
   });
 
   useEffect(() => {
-    if (session?.user?.name) {
-      const names = session.user.name.split(' ');
-      setFormData(prev => ({
-        ...prev,
-        first_mid_name: names[0] || '',
-        last_name: names.slice(1).join(' ') || ''
-      }));
-    }
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch('/api/profile');
+        if (res.ok) {
+          const data = await res.json();
+          setProfileData(data.profile);
+          setMaskapaiList(data.maskapaiList || []);
+          setFormData({
+            salutation: data.profile.salutation || 'Mr.',
+            first_mid_name: data.profile.first_mid_name || '',
+            last_name: data.profile.last_name || '',
+            country_code: data.profile.country_code || '',
+            mobile_number: data.profile.mobile_number || '',
+            kewarganegaraan: data.profile.kewarganegaraan || '',
+            tanggal_lahir: data.profile.tanggal_lahir || '',
+            kode_maskapai: data.profile.kode_maskapai || ''
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch profile', err);
+      }
+    };
+    if (session?.user?.email) fetchProfile();
   }, [session]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
-    setTimeout(() => {
-      setIsSaving(false);
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'UPDATE_PROFILE', ...formData })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      await update({ name: `${formData.first_mid_name} ${formData.last_name}`.trim() });
       alert('Profil berhasil diperbarui!');
-    }, 1000);
+    } catch (err: any) {
+      alert(err.message || 'Gagal memperbarui profil');
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert('Konfirmasi password baru tidak cocok');
+      return;
+    }
+    setIsSavingPassword(true);
+    try {
+      const res = await fetch('/api/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'UPDATE_PASSWORD', oldPassword: passwordData.oldPassword, newPassword: passwordData.newPassword })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert('Password berhasil diperbarui!');
+      setShowPasswordForm(false);
+      setPasswordData({ oldPassword: '', newPassword: '', confirmPassword: '' });
+    } catch (err: any) {
+      alert(err.message || 'Gagal memperbarui password');
+    } finally {
+      setIsSavingPassword(false);
+    }
   };
 
   return (
@@ -69,12 +131,12 @@ export default function PengaturanProfil() {
               {isStaf ? (
                 <div>
                   <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block mb-1">ID Staf</label>
-                  <p className="text-[10px] font-mono font-bold text-[var(--color-title)]">S-99081</p>
+                  <p className="text-[10px] font-mono font-bold text-[var(--color-title)]">{profileData?.id_staf || '...'}</p>
                 </div>
               ) : (
                 <div>
                   <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block mb-1">No. Member</label>
-                  <p className="text-[10px] font-mono font-bold text-[var(--color-title)]">M-20240001</p>
+                  <p className="text-[10px] font-mono font-bold text-[var(--color-title)]">{profileData?.nomor_member || '...'}</p>
                 </div>
               )}
             </div>
@@ -91,24 +153,24 @@ export default function PengaturanProfil() {
                 Ubah Password
               </button>
             ) : (
-              <div className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
+              <form onSubmit={handlePasswordSubmit} className="space-y-4 animate-in fade-in slide-in-from-top-2 duration-300">
                 <div>
                   <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block mb-1">Password Lama</label>
-                  <input type="password" placeholder="••••••••" className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-danger)] outline-none" />
+                  <input type="password" value={passwordData.oldPassword} onChange={e => setPasswordData({...passwordData, oldPassword: e.target.value})} required placeholder="••••••••" className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-danger)] outline-none" />
                 </div>
                 <div>
                   <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block mb-1">Password Baru</label>
-                  <input type="password" placeholder="••••••••" className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-primary)] outline-none" />
+                  <input type="password" value={passwordData.newPassword} onChange={e => setPasswordData({...passwordData, newPassword: e.target.value})} required placeholder="••••••••" className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-primary)] outline-none" />
                 </div>
                 <div>
                   <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block mb-1">Konfirmasi</label>
-                  <input type="password" placeholder="••••••••" className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-primary)] outline-none" />
+                  <input type="password" value={passwordData.confirmPassword} onChange={e => setPasswordData({...passwordData, confirmPassword: e.target.value})} required placeholder="••••••••" className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-primary)] outline-none" />
                 </div>
                 <div className="flex gap-3 pt-4">
-                  <button onClick={() => setShowPasswordForm(false)} className="flex-1 text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest py-2">Batal</button>
-                  <button className="flex-2 bg-[var(--color-primary)] text-white text-[9px] font-bold uppercase tracking-widest py-2 px-4 rounded shadow-sm hover:opacity-90 transition-all">Update Password</button>
+                  <button type="button" onClick={() => setShowPasswordForm(false)} className="flex-1 text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest py-2">Batal</button>
+                  <button type="submit" disabled={isSavingPassword} className="flex-2 bg-[var(--color-primary)] text-white text-[9px] font-bold uppercase tracking-widest py-2 px-4 rounded shadow-sm hover:opacity-90 transition-all disabled:opacity-50">{isSavingPassword ? 'Menyimpan...' : 'Update Password'}</button>
                 </div>
-              </div>
+              </form>
             )}
           </section>
         </div>
@@ -211,11 +273,12 @@ export default function PengaturanProfil() {
                     onChange={(e) => setFormData({...formData, kode_maskapai: e.target.value})}
                     className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-secondary)] outline-none bg-transparent font-bold text-[var(--color-primary)]"
                   >
-                    <option value="GA">GA - Garuda Indonesia</option>
-                    <option value="JT">JT - Lion Air</option>
-                    <option value="QG">QG - Citilink</option>
-                    <option value="ID">ID - Batik Air</option>
-                    <option value="QZ">QZ - AirAsia Indonesia</option>
+                    <option value="">-- Pilih Maskapai --</option>
+                    {maskapaiList.map((m) => (
+                      <option key={m.kode_maskapai} value={m.kode_maskapai}>
+                        {m.kode_maskapai} - {m.nama_maskapai}
+                      </option>
+                    ))}
                   </select>
                 </div>
               )}
