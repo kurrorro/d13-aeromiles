@@ -3,7 +3,8 @@ import pool from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'member') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       JOIN BANDARA b1 ON c.bandara_asal = b1.iata_code
       JOIN BANDARA b2 ON c.bandara_tujuan = b2.iata_code
       WHERE c.id = $1 AND c.email_member = $2
-    `, [params.id, session.user.email]);
+    `, [id, session.user.email]);
 
     if (res.rows.length === 0) {
       return NextResponse.json({ error: 'Claim not found' }, { status: 404 });
@@ -29,7 +30,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'member') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -46,7 +48,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     // Check status first
     const statusCheck = await pool.query(
       'SELECT status_penerimaan FROM CLAIM_MISSING_MILES WHERE id = $1 AND email_member = $2',
-      [params.id, session.user.email]
+      [id, session.user.email]
     );
 
     if (statusCheck.rows.length === 0) {
@@ -67,7 +69,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     `, [
       maskapai, bandara_asal, bandara_tujuan, 
       tanggal_penerbangan, flight_number, nomor_tiket, 
-      kelas_kabin, pnr, params.id, session.user.email
+      kelas_kabin, pnr, id, session.user.email
     ]);
 
     return NextResponse.json(res.rows[0]);
@@ -76,7 +78,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'member') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -85,7 +88,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   try {
     const statusCheck = await pool.query(
       'SELECT status_penerimaan FROM CLAIM_MISSING_MILES WHERE id = $1 AND email_member = $2',
-      [params.id, session.user.email]
+      [id, session.user.email]
     );
 
     if (statusCheck.rows.length === 0) {
@@ -96,7 +99,7 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       return NextResponse.json({ error: 'Hanya klaim berstatus Menunggu yang dapat dibatalkan.' }, { status: 400 });
     }
 
-    await pool.query('DELETE FROM CLAIM_MISSING_MILES WHERE id = $1 AND email_member = $2', [params.id, session.user.email]);
+    await pool.query('DELETE FROM CLAIM_MISSING_MILES WHERE id = $1 AND email_member = $2', [id, session.user.email]);
     return NextResponse.json({ message: 'Claim cancelled successfully' });
   } catch (error) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });

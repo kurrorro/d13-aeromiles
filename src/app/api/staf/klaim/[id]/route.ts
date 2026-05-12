@@ -3,7 +3,8 @@ import pool from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -17,7 +18,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       JOIN MEMBER mem ON c.email_member = mem.email
       JOIN PENGGUNA p ON mem.email = p.email
       WHERE c.id = $1
-    `, [params.id]);
+    `, [id]);
 
     if (res.rows.length === 0) {
       return NextResponse.json({ error: 'Claim not found' }, { status: 404 });
@@ -32,7 +33,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -52,7 +54,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         email_staf = $2
       WHERE id = $3
       RETURNING *
-    `, [status, session.user.email, params.id]);
+    `, [status, session.user.email, id]);
 
     if (res.rows.length === 0) {
       return NextResponse.json({ error: 'Claim not found' }, { status: 404 });

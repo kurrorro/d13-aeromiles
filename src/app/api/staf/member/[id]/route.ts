@@ -3,13 +3,14 @@ import pool from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../auth/[...nextauth]/route';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const nomorMember = params.id;
+  const nomorMember = id;
 
   try {
     const query = `
@@ -33,13 +34,14 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const nomorMember = params.id;
+  const nomorMember = id;
   const data = await request.json();
 
   const client = await pool.connect();
@@ -78,13 +80,14 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const nomorMember = params.id;
+  const nomorMember = id;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
