@@ -1,7 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { DUMMY_PENGGUNA } from "@/dummy/pengguna";
-import { DUMMY_STAF } from "@/dummy/staf";
+import bcrypt from "bcryptjs";
+import pool from "@/lib/db";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -12,20 +12,40 @@ export const authOptions: NextAuthOptions = {
         password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
-        const user = DUMMY_PENGGUNA.find(
-          (u) => u.email === credentials?.email && u.password === credentials?.password
-        );
+        if (!credentials?.email || !credentials?.password) return null;
 
-        if (user) {
-          const isStaf = DUMMY_STAF.some((s) => s.email === user.email);
+        const query = `
+          SELECT p.email, p.password, p.first_mid_name, p.last_name,
+                 CASE WHEN EXISTS (SELECT 1 FROM MEMBER WHERE email = p.email) 
+                      THEN 'member'
+                      WHEN EXISTS (SELECT 1 FROM STAF WHERE email = p.email) 
+                      THEN 'staf'
+                 END AS role
+          FROM PENGGUNA p
+          WHERE LOWER(p.email) = LOWER($1);
+        `;
+
+        try {
+          const result = await pool.query(query, [credentials.email]);
+          
+          if (result.rows.length === 0) return null;
+
+          const user = result.rows[0];
+          
+          const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
+          
+          if (!isPasswordValid) return null;
+
           return {
             id: user.email,
-            name: `${user.first_mid_name} ${user.last_name}`,
+            name: `${user.first_mid_name} ${user.last_name || ''}`.trim(),
             email: user.email,
-            role: isStaf ? "staf" : "member",
+            role: user.role,
           };
+        } catch (error) {
+          console.error("Login error:", error);
+          return null;
         }
-        return null;
       },
     }),
   ],

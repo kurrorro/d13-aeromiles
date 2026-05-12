@@ -1,21 +1,51 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { DUMMY_IDENTITAS } from '@/dummy/identitas';
 
 export default function IdentitasMemberPage() {
-  const [dokumen, setDokumen] = useState(DUMMY_IDENTITAS);
+  const [dokumen, setDokumen] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedJenis, setSelectedJenis] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-  const deleteDokumen = (nomor: string) => {
+  useEffect(() => {
+    fetchIdentitas();
+  }, []);
+
+  const fetchIdentitas = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/member/identitas');
+      const data = await res.json();
+      if (res.ok) {
+        setDokumen(data.data || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch identitas:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteDokumen = async (nomor: string) => {
     const confirmMessage = `Apakah Anda yakin ingin menghapus dokumen ${nomor}? 
     
 Tindakan ini permanen dan dokumen tidak dapat dikembalikan.`;
 
     if (confirm(confirmMessage)) {
-      setDokumen(dokumen.filter(d => d.nomor_dokumen !== nomor));
-      alert(`Dokumen ${nomor} telah berhasil dihapus dari sistem.`);
+      try {
+        const res = await fetch(`/api/member/identitas/${encodeURIComponent(nomor)}`, { method: 'DELETE' });
+        if (res.ok) {
+          setDokumen(dokumen.filter(d => d.nomor !== nomor));
+          alert(`Dokumen ${nomor} telah berhasil dihapus dari sistem.`);
+        } else {
+          const data = await res.json();
+          alert(`Gagal menghapus dokumen: ${data.error}`);
+        }
+      } catch (err) {
+        console.error('Error deleting dokumen:', err);
+        alert('Terjadi kesalahan saat menghapus dokumen.');
+      }
     }
   };
 
@@ -25,8 +55,8 @@ Tindakan ini permanen dan dokumen tidak dapat dikembalikan.`;
 
   const filteredDokumen = dokumen.filter(d => {
     const matchesSearch = 
-      d.nomor_dokumen.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      d.negara_penerbit.toLowerCase().includes(searchQuery.toLowerCase());
+      (d.nomor || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (d.negara_penerbit || '').toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesJenis = selectedJenis === '' || d.jenis === selectedJenis;
     
@@ -92,13 +122,17 @@ Tindakan ini permanen dan dokumen tidak dapat dikembalikan.`;
               </tr>
             </thead>
             <tbody className="divide-y divide-[var(--color-border-light)]">
-              {filteredDokumen.map((d) => {
+              {isLoading ? (
+                <tr>
+                  <td colSpan={7} className="py-20 text-center text-sm font-medium">Memuat data...</td>
+                </tr>
+              ) : filteredDokumen.map((d) => {
                 const expired = isExpired(d.tanggal_habis);
                 return (
-                  <tr key={d.nomor_dokumen} className="hover:bg-[var(--color-bg-subtle)]/50 transition-colors">
+                  <tr key={d.nomor} className="hover:bg-[var(--color-bg-subtle)]/50 transition-colors">
 
                     <td className="px-6 py-4 text-xs font-mono font-bold text-[var(--color-primary)]">
-                      {d.nomor_dokumen}
+                      {d.nomor}
                     </td>
 
                     <td className="px-6 py-4 text-xs font-semibold text-[var(--color-title)]">
@@ -125,13 +159,13 @@ Tindakan ini permanen dan dokumen tidak dapat dikembalikan.`;
 
                     <td className="px-6 py-4 text-right">
                       <div className="flex justify-end gap-3">
-                        <Link href={`/member/identitas/${d.nomor_dokumen}/edit`} className="text-[var(--color-primary)] hover:opacity-70 transition-opacity" title="Edit">
+                        <Link href={`/member/identitas/${encodeURIComponent(d.nomor)}/edit`} className="text-[var(--color-primary)] hover:opacity-70 transition-opacity" title="Edit">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                           </svg>
                         </Link>
 
-                        <button onClick={() => deleteDokumen(d.nomor_dokumen)} className="text-[var(--color-danger)] hover:opacity-70 transition-opacity" title="Hapus">
+                        <button onClick={() => deleteDokumen(d.nomor)} className="text-[var(--color-danger)] hover:opacity-70 transition-opacity" title="Hapus">
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                           </svg>
@@ -145,7 +179,7 @@ Tindakan ini permanen dan dokumen tidak dapat dikembalikan.`;
             </tbody>
           </table>
 
-          {filteredDokumen.length === 0 && (
+          {!isLoading && filteredDokumen.length === 0 && (
             <div className="py-20 text-center text-sm text-[var(--color-text-muted)] italic">
               Dokumen identitas tidak ditemukan.
             </div>

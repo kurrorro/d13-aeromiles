@@ -2,26 +2,54 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { DUMMY_IDENTITAS } from '@/dummy/identitas';
 
 export default function EditIdentitasPage() {
   const router = useRouter();
   const params = useParams();
   const [formData, setFormData] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const dokumen = DUMMY_IDENTITAS.find(d => d.nomor_dokumen === params.id);
-    if (dokumen) setFormData(dokumen);
-  }, [params.id]);
+    const fetchDokumen = async () => {
+      try {
+        const res = await fetch(`/api/member/identitas/${params.id}`);
+        const data = await res.json();
+        if (res.ok) {
+          setFormData(data.data);
+        } else {
+          alert('Dokumen tidak ditemukan atau Anda tidak memiliki akses.');
+          router.push('/member/identitas');
+        }
+      } catch (err) {
+        console.error('Failed to fetch dokumen:', err);
+      }
+    };
+    if (params.id) fetchDokumen();
+  }, [params.id, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Pembaruan data identitas berhasil disimpan!');
-    router.push('/member/identitas');
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/member/identitas/${params.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      alert('Pembaruan data identitas berhasil disimpan!');
+      router.push('/member/identitas');
+    } catch (err: any) {
+      alert(err.message || 'Gagal menyimpan perubahan');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!formData) return <div className="p-20 text-center text-sm font-medium">Memuat data dokumen...</div>;
@@ -50,7 +78,7 @@ export default function EditIdentitasPage() {
               <div className="md:col-span-2">
                 <label className="block text-[10px] font-bold uppercase text-text-muted mb-1.5">Nomor Dokumen (Terkunci)</label>
                 <div className="bg-bg-subtle px-4 py-2.5 rounded-lg text-sm font-mono text-text-muted border border-border-light">
-                  {formData.nomor_dokumen}
+                  {formData.nomor}
                 </div>
               </div>
 
@@ -107,8 +135,8 @@ export default function EditIdentitasPage() {
             </div>
             
             <div className="pt-6 flex justify-end">
-              <button type="submit" className="w-full md:w-auto bg-primary text-white px-10 py-3 rounded-lg font-bold hover:bg-secondary transition-all shadow-sm active:scale-95">
-                Simpan Perubahan
+              <button disabled={isSaving} type="submit" className="w-full md:w-auto bg-primary text-white px-10 py-3 rounded-lg font-bold hover:bg-secondary transition-all shadow-sm active:scale-95 disabled:opacity-50">
+                {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
               </button>
             </div>
           </div>

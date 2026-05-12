@@ -6,21 +6,37 @@ import Link from 'next/link';
 export default function TambahIdentitasPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    nomor_dokumen: '',
+    nomor: '',
     jenis: 'KTP',
     negara_penerbit: '',
     tanggal_terbit: '',
     tanggal_habis: ''
   });
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Dokumen ${formData.jenis} (${formData.nomor_dokumen}) berhasil didaftarkan!\nNomor dokumen ini akan menjadi ID unik di sistem.`);
-    router.push('/member/identitas');
+    setIsSaving(true);
+    try {
+      const res = await fetch('/api/member/identitas', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      
+      alert(`Dokumen ${formData.jenis} (${formData.nomor}) berhasil didaftarkan!\nNomor dokumen ini akan menjadi ID unik di sistem.`);
+      router.push('/member/identitas');
+    } catch (err: any) {
+      alert(err.message || 'Gagal mendaftarkan dokumen');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -75,10 +91,10 @@ export default function TambahIdentitasPage() {
                 <label className="block text-[10px] font-bold uppercase text-text-muted mb-1.5">Nomor Dokumen</label>
                 <input 
                   required
-                  name="nomor_dokumen"
+                  name="nomor"
                   type="text" 
                   placeholder="Masukkan nomor seri identitas..."
-                  value={formData.nomor_dokumen}
+                  value={formData.nomor}
                   onChange={handleChange}
                   className="w-full border-b border-border-light py-2 text-sm font-mono focus:border-primary outline-none transition-colors" 
                 />
@@ -112,8 +128,8 @@ export default function TambahIdentitasPage() {
             </div>
             
             <div className="pt-6">
-              <button type="submit" className="w-full bg-primary text-white px-10 py-3 rounded-lg font-bold hover:bg-secondary transition-all shadow-sm active:scale-95">
-                Simpan Dokumen
+              <button disabled={isSaving} type="submit" className="w-full bg-primary text-white px-10 py-3 rounded-lg font-bold hover:bg-secondary transition-all shadow-sm active:scale-95 disabled:opacity-50">
+                {isSaving ? 'Menyimpan...' : 'Simpan Dokumen'}
               </button>
             </div>
           </div>

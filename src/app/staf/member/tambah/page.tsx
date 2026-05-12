@@ -16,16 +16,42 @@ export default function AddMemberPage() {
     tanggal_lahir: '',
     kewarganegaraan: ''
   });
+  const [isSaving, setIsSaving] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const generatedID = "M" + Math.floor(1000 + Math.random() * 9000);
-    alert(`Member Baru Berhasil Dibuat!\nID: ${generatedID}\nTier: Blue (Default)\nTanggal: ${new Date().toLocaleDateString('id-ID')}`);
-    router.push('/staf/member');
+    setIsSaving(true);
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          role: 'member',
+          email: formData.email,
+          password: formData.password,
+          salutation: formData.salutation,
+          namaDepan: formData.first_mid_name,
+          namaBelakang: formData.last_name,
+          countryCode: formData.country_code,
+          nomorHp: formData.mobile_number,
+          tanggalLahir: formData.tanggal_lahir,
+          kewarganegaraan: formData.kewarganegaraan
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+
+      alert(`Member Baru Berhasil Dibuat!`);
+      router.push('/staf/member');
+    } catch (err: any) {
+      alert(err.message || 'Gagal mendaftarkan member baru');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   return (
@@ -180,9 +206,10 @@ export default function AddMemberPage() {
         <div className="pt-4 border-t border-[var(--color-border-light)]">
           <button
             type="submit"
-            className="w-full bg-[var(--color-primary)] text-white py-3 rounded-lg text-[10px] font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all shadow-md active:scale-[0.99]"
+            disabled={isSaving}
+            className="w-full bg-[var(--color-primary)] text-white py-3 rounded-lg text-[10px] font-bold uppercase tracking-[0.2em] hover:opacity-90 transition-all shadow-md active:scale-[0.99] disabled:opacity-50"
           >
-            Daftarkan Member
+            {isSaving ? 'Mendaftarkan...' : 'Daftarkan Member'}
           </button>
         </div>
       </form>

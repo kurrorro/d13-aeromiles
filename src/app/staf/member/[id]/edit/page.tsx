@@ -1,22 +1,53 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { DUMMY_MEMBERS } from '@/dummy/member';
 
 export default function EditMemberPage() {
   const router = useRouter();
   const params = useParams();
   const [formData, setFormData] = useState<any>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
-    const member = DUMMY_MEMBERS.find(m => m.nomor_member === params.id);
-    if (member) {
-      setFormData(member);
-    }
-  }, [params.id]);
+    const fetchMember = async () => {
+      try {
+        const res = await fetch(`/api/staf/member/${params.id}`);
+        const data = await res.json();
+        if (res.ok) {
+          setFormData(data.data);
+        } else {
+          alert('Member tidak ditemukan!');
+          router.push('/staf/member');
+        }
+      } catch (err) {
+        console.error('Failed to fetch member:', err);
+      }
+    };
+    if (params.id) fetchMember();
+  }, [params.id, router]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSaving(true);
+    try {
+      const res = await fetch(`/api/staf/member/${params.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error);
+      alert('Perubahan berhasil disimpan!');
+      router.push('/staf/member');
+    } catch (err: any) {
+      alert(err.message || 'Gagal menyimpan perubahan');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!formData) return <div className="p-20 text-center font-medium">Memuat data member...</div>;
@@ -31,6 +62,7 @@ export default function EditMemberPage() {
             <p className="text-sm text-text-muted">Nomor Member: <span className="font-mono font-bold text-title">{formData.nomor_member}</span></p>
           </div>
           <button 
+            type="button"
             onClick={() => router.back()}
             className="px-4 py-2 text-sm font-semibold border border-border-light rounded-lg hover:bg-white transition-all"
           >
@@ -38,7 +70,7 @@ export default function EditMemberPage() {
           </button>
         </div>
 
-        <form onSubmit={(e) => { e.preventDefault(); alert('Perubahan disimpan!'); router.push('/staf/member'); }} className="space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6">
           
           <div className="bg-white border border-border-light rounded-xl p-6 shadow-sm">
             <h2 className="text-xs font-bold uppercase tracking-wider text-primary mb-6 flex items-center gap-2">
@@ -52,11 +84,11 @@ export default function EditMemberPage() {
               </div>
               <div className="bg-bg-subtle/50 p-3 rounded-lg border border-border-light/50">
                 <label className="block text-[10px] font-bold uppercase text-text-muted mb-1">Award Miles</label>
-                <div className="text-sm font-bold text-primary">{formData.award_miles.toLocaleString()}</div>
+                <div className="text-sm font-bold text-primary">{Number(formData.award_miles || 0).toLocaleString()}</div>
               </div>
               <div className="bg-bg-subtle/50 p-3 rounded-lg border border-border-light/50">
                 <label className="block text-[10px] font-bold uppercase text-text-muted mb-1">Total Miles</label>
-                <div className="text-sm font-bold">{formData.total_miles.toLocaleString()}</div>
+                <div className="text-sm font-bold">{Number(formData.total_miles || 0).toLocaleString()}</div>
               </div>
               <div className="md:col-span-3">
                 <label className="block text-[10px] font-bold uppercase text-text-muted mb-2">Tier Saat Ini (Dapat Diubah Manual)</label>
@@ -127,9 +159,10 @@ export default function EditMemberPage() {
           <div className="flex justify-end pt-4">
             <button 
               type="submit"
-              className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-secondary transition-all shadow-md active:scale-95"
+              disabled={isSaving}
+              className="bg-primary text-white px-8 py-3 rounded-lg font-bold hover:bg-secondary transition-all shadow-md active:scale-95 disabled:opacity-50"
             >
-              Simpan Perubahan
+              {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
             </button>
           </div>
 
