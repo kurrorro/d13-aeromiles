@@ -20,17 +20,13 @@ export default function AjukanKlaimPage() {
   const [maskapai, setMaskapai] = useState<MaskapaiItem[]>([]);
 
   useEffect(() => {
-    fetch('/api/bandara')
+    fetch('/api/options')
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(d => {
-        const b = d.bandara || [];
-        const m = d.maskapai || [];
-        // Gunakan dummy sebagai fallback kalau DB belum ada data
-        setBandara(b.length > 0 ? b : DUMMY_BANDARA);
-        setMaskapai(m.length > 0 ? m : DUMMY_MASKAPAI);
+        setBandara(d.airports || []);
+        setMaskapai(d.airlines || []);
       })
       .catch(() => {
-        // API gagal (DB belum jalan) → pakai dummy
         setBandara(DUMMY_BANDARA);
         setMaskapai(DUMMY_MASKAPAI);
       });
@@ -65,7 +61,7 @@ export default function AjukanKlaimPage() {
     setIsSubmitting(true);
     setSubmitError('');
     try {
-      const res = await fetch('/api/klaim', {
+      const res = await fetch('/api/member/klaim', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),
