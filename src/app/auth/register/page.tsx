@@ -1,11 +1,13 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
 export default function RegisterPage() {
   const router = useRouter();
   const [role, setRole] = useState<'member' | 'staf'>('member');
+  const [maskapaiList, setMaskapaiList] = useState<{kode_maskapai: string, nama_maskapai: string}[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   
   const [formData, setFormData] = useState({
     email: '',
@@ -23,11 +25,26 @@ export default function RegisterPage() {
 
   const [errorMessage, setErrorMessage] = useState('');
 
+  useEffect(() => {
+    const fetchMaskapai = async () => {
+      try {
+        const res = await fetch('/api/auth/register');
+        if (res.ok) {
+          const data = await res.json();
+          setMaskapaiList(data.maskapai || []);
+        }
+      } catch (err) {
+        console.error('Failed to fetch maskapai', err);
+      }
+    };
+    fetchMaskapai();
+  }, []);
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(''); 
 
@@ -36,11 +53,31 @@ export default function RegisterPage() {
       return;
     }
 
-    alert(role === 'member' 
-      ? 'Registrasi Member Berhasil! Akun Anda masuk ke tier Blue.' 
-      : 'Registrasi Staf Berhasil! ID Staf Anda telah digenerate.');
-    
-    router.push('/auth/login');
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ...formData, role })
+      });
+      
+      const data = await res.json();
+      
+      if (!res.ok) {
+        setErrorMessage(data.error || 'Terjadi kesalahan saat registrasi');
+        return;
+      }
+
+      alert(role === 'member' 
+        ? 'Registrasi Member Berhasil! Akun Anda masuk ke tier awal.' 
+        : 'Registrasi Staf Berhasil! ID Staf Anda telah digenerate.');
+      
+      router.push('/auth/login');
+    } catch (err: any) {
+      setErrorMessage('Terjadi kesalahan jaringan: ' + err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -153,18 +190,19 @@ export default function RegisterPage() {
                 <label className="block text-xs font-semibold uppercase tracking-wider text-text-muted mb-1.5">Kode Maskapai</label>
                 <select name="kodeMaskapai" value={formData.kodeMaskapai} onChange={handleChange} required className="w-full border border-border-light rounded-lg px-4 py-2 focus:outline-none focus:border-primary bg-white text-sm">
                   <option value="">-- Pilih Maskapai --</option>
-                  <option value="GA">GA - Garuda Indonesia</option>
-                  <option value="SQ">SQ - Singapore Airlines</option>
-                  <option value="QZ">QZ - AirAsia</option>
-                  <option value="JT">JT - Lion Air</option>
+                  {maskapaiList.map((m) => (
+                    <option key={m.kode_maskapai} value={m.kode_maskapai}>
+                      {m.kode_maskapai} - {m.nama_maskapai}
+                    </option>
+                  ))}
                 </select>
               </div>
             )}
           </div>
 
           <div className="mt-4">
-            <button type="submit" className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-secondary transition-all shadow-sm active:scale-[0.98]">
-              Daftar Sekarang
+            <button type="submit" disabled={isLoading} className="w-full bg-primary text-white py-3 rounded-lg font-bold hover:bg-secondary transition-all shadow-sm active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed">
+              {isLoading ? 'Mendaftar...' : 'Daftar Sekarang'}
             </button>
             <p className="text-center mt-6 text-sm text-text-muted">
               Sudah punya akun?{' '}
