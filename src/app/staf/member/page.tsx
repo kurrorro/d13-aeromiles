@@ -1,14 +1,33 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { DUMMY_MEMBERS } from '@/dummy/member';
 
 export default function StaffMemberManagement() {
-  const [members, setMembers] = useState(DUMMY_MEMBERS);
+  const [members, setMembers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTier, setSelectedTier] = useState('');
+  const [isLoading, setIsLoading] = useState(true);
 
-    const deleteMember = (nomor: string) => {
+  useEffect(() => {
+    fetchMembers();
+  }, []);
+
+  const fetchMembers = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/staf/member');
+      const data = await res.json();
+      if (res.ok) {
+        setMembers(data.data || []);
+      }
+    } catch (err) {
+      console.error('Failed to fetch members:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const deleteMember = async (nomor: string) => {
     const confirmMessage = `Apakah Anda yakin ingin menghapus member ${nomor}? 
     
     Tindakan ini permanen dan akan menghapus seluruh data terkait:
@@ -18,16 +37,26 @@ export default function StaffMemberManagement() {
     - Redeem Miles`;
 
     if (confirm(confirmMessage)) {
-        setMembers(members.filter(m => m.nomor_member !== nomor));
-        alert(`Member ${nomor} telah berhasil dihapus dari sistem.`);
+      try {
+        const res = await fetch(`/api/staf/member/${nomor}`, { method: 'DELETE' });
+        if (res.ok) {
+          setMembers(members.filter(m => m.nomor_member !== nomor));
+          alert(`Member ${nomor} telah berhasil dihapus dari sistem.`);
+        } else {
+          const data = await res.json();
+          alert(`Gagal menghapus: ${data.error}`);
+        }
+      } catch (err) {
+        console.error('Error deleting member:', err);
+        alert('Terjadi kesalahan saat menghapus member.');
+      }
     }
-};
+  };
 
   const filteredMembers = members.filter(m => {
     const matchesSearch = 
       m.nomor_member.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.first_mid_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      m.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (m.nama_lengkap || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
       m.email.toLowerCase().includes(searchQuery.toLowerCase());
     
     const matchesTier = selectedTier === '' || m.id_tier === selectedTier;
@@ -97,7 +126,11 @@ export default function StaffMemberManagement() {
             </tr>
           </thead>
           <tbody className="divide-y divide-[var(--color-border-light)]">
-            {filteredMembers.map((m) => (
+            {isLoading ? (
+              <tr>
+                <td colSpan={8} className="py-20 text-center text-sm font-medium">Memuat data...</td>
+              </tr>
+            ) : filteredMembers.map((m) => (
               <tr key={m.nomor_member} className="hover:bg-[var(--color-bg-subtle)]/50 transition-colors">
                 
                 <td className="px-6 py-4 text-xs font-mono font-bold text-[var(--color-primary)]">
@@ -105,7 +138,7 @@ export default function StaffMemberManagement() {
                 </td>
 
                 <td className="px-6 py-4 text-xs font-semibold text-[var(--color-title)]">
-                  {m.salutation} {m.first_mid_name} {m.last_name}
+                  {m.nama_lengkap}
                 </td>
                 
                 <td className="px-6 py-4 text-xs font-medium text-[var(--color-title)]">
@@ -119,11 +152,11 @@ export default function StaffMemberManagement() {
                 </td>
                 
                 <td className="px-6 py-4 text-right font-medium text-xs">
-                  {m.total_miles.toLocaleString('id-ID')}
+                  {Number(m.total_miles || 0).toLocaleString('id-ID')}
                 </td>
 
                 <td className="px-6 py-4 text-right font-bold text-[var(--color-primary)] text-xs">
-                  {m.award_miles.toLocaleString('id-ID')}
+                  {Number(m.award_miles || 0).toLocaleString('id-ID')}
                 </td>
 
                 <td className="px-6 py-4 text-center text-[10px] text-[var(--color-text-muted)] uppercase">
@@ -151,7 +184,7 @@ export default function StaffMemberManagement() {
           </tbody>
         </table>
 
-        {filteredMembers.length === 0 && (
+        {!isLoading && filteredMembers.length === 0 && (
           <div className="py-20 text-center text-sm text-[var(--color-text-muted)] italic">
             Data tidak ditemukan.
           </div>
