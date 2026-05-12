@@ -38,7 +38,7 @@ export default function MemberKlaimPage() {
   const fetchKlaim = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/klaim');
+      const res = await fetch('/api/member/klaim');
       if (!res.ok) throw new Error('Gagal memuat data');
       const data = await res.json();
       setKlaim(data);
@@ -62,7 +62,7 @@ export default function MemberKlaimPage() {
     if (selectedId === null) return;
     setIsDeleting(true);
     try {
-      await fetch(`/api/klaim/${selectedId}`, { method: 'DELETE' });
+      await fetch(`/api/member/klaim/${selectedId}`, { method: 'DELETE' });
       setKlaim(prev => prev.filter(k => k.id !== selectedId));
     } finally {
       setIsDeleting(false);

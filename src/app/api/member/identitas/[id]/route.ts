@@ -3,14 +3,15 @@ import pool from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '../../../auth/[...nextauth]/route';
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'member') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const email = session.user.email;
-  const nomor = decodeURIComponent(params.id);
+  const nomor = decodeURIComponent(id);
 
   try {
     const query = `
@@ -31,14 +32,15 @@ export async function GET(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(request: Request, { params }: { params: { id: string } }) {
+export async function PUT(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'member') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const email = session.user.email;
-  const nomor = decodeURIComponent(params.id);
+  const nomor = decodeURIComponent(id);
   const data = await request.json();
 
   const { jenis, negara_penerbit, tanggal_terbit, tanggal_habis } = data;
@@ -62,14 +64,15 @@ export async function PUT(request: Request, { params }: { params: { id: string }
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'member') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const email = session.user.email;
-  const nomor = decodeURIComponent(params.id);
+  const nomor = decodeURIComponent(id);
 
   try {
     const check = await pool.query('SELECT nomor FROM IDENTITAS WHERE nomor = $1 AND email_member = $2', [nomor, email]);

@@ -1,190 +1,102 @@
 'use client';
+
+import { useEffect, useState } from 'react';
 import { useSession } from 'next-auth/react';
-import { DUMMY_MEMBERS } from '@/dummy/member';
-import { DUMMY_KLAIM } from '@/dummy/klaim';
-import { DUMMY_TRANSFER } from '@/dummy/transfer';
-import { DUMMY_TIERS } from '@/dummy/tier';
 
 export default function MemberDashboard() {
   const { data: session } = useSession();
-  const email = session?.user?.email;
+  const [data, setData] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Find member data
-  const member = DUMMY_MEMBERS.find(m => m.email === email) || DUMMY_MEMBERS[0];
-  const currentTier = DUMMY_TIERS.find(t => t.nama === member.id_tier || t.id_tier === member.id_tier) || DUMMY_TIERS[0];
-  const nextTier = DUMMY_TIERS[DUMMY_TIERS.findIndex(t => t.id_tier === currentTier.id_tier) + 1] || null;
-  const tierProgress = nextTier ? Math.min(100, (member.total_miles / nextTier.minimal_tier_miles) * 100) : 100;
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const res = await fetch('/api/dashboard/member');
+        const json = await res.json();
+        if (res.ok) {
+          setData(json);
+        }
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
-  // Build recent 5 transactions from klaim + transfer
-  type Transaction = {
-    tipe: string;
-    deskripsi: string;
-    tanggal: string;
-    jumlah: number;
-    arah: 'plus' | 'minus';
-  };
-  const transactions: Transaction[] = [];
+  if (loading) return <div className="p-8">Loading...</div>;
+  if (!data) return <div className="p-8 text-red-500">Error loading dashboard</div>;
 
-  // Add approved klaim for this member
-  DUMMY_KLAIM
-    .filter(k => k.email_member === member.email && k.status_penerimaan === 'Disetujui')
-    .forEach(k => {
-      transactions.push({
-        tipe: 'Klaim Miles',
-        deskripsi: `${k.bandara_asal} → ${k.bandara_tujuan} (${k.nama_maskapai})`,
-        tanggal: k.timestamp.split(' ')[0],
-        jumlah: k.kelas_kabin === 'First' ? 5000 : k.kelas_kabin === 'Business' ? 3000 : 1500,
-        arah: 'plus',
-      });
-    });
-
-  // Add transfers — sent (minus) and received (plus)
-  DUMMY_TRANSFER
-    .filter(t => t.email_member_1 === member.email || t.email_member_2 === member.email)
-    .forEach(t => {
-      const isSender = t.email_member_1 === member.email;
-      transactions.push({
-        tipe: 'Transfer Miles',
-        deskripsi: isSender ? `Dikirim ke ${t.nama_2}` : `Diterima dari ${t.nama_1}`,
-        tanggal: t.timestamp.split(' ')[0],
-        jumlah: t.jumlah,
-        arah: isSender ? 'minus' : 'plus',
-      });
-    });
-
-  // Sort and take 5 most recent
-  const recent = transactions
-    .sort((a, b) => b.tanggal.localeCompare(a.tanggal))
-    .slice(0, 5);
+  const { profile, transactions } = data;
 
   return (
-    <div className="max-w-7xl mx-auto p-6 md:p-10 font-sans">
-
-      {/* Welcome */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-[var(--color-title)] tracking-tight">
-          Selamat datang, {session?.user?.name}
-        </h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-1">Pantau miles dan aktivitas keanggotaan Anda</p>
-      </div>
-
-      {/* 4 Stat Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        {/* Nomor Member */}
-        <div className="bg-white border border-[var(--color-border-light)] rounded-lg p-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border-l-4 border-l-[var(--color-secondary)]">
-          <p className="text-xs font-medium text-[var(--color-text-muted)] mb-2 uppercase tracking-wider">Nomor Member</p>
-          <p className="text-xl font-bold text-[var(--color-title)] font-mono">{member.nomor_member}</p>
+    <div className="p-8 max-w-6xl mx-auto space-y-8">
+      <div className="bg-white rounded-2xl shadow-xl p-8 border border-gray-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">
+            Halo, {profile.salutation} {profile.first_mid_name} {profile.last_name}
+          </h1>
+          <p className="text-gray-500 mt-1">Nomor Member: <span className="font-semibold text-blue-600">{profile.nomor_member}</span></p>
+          <p className="text-sm text-gray-400 mt-2">Bergabung sejak: {new Date(profile.tanggal_bergabung).toLocaleDateString()}</p>
         </div>
-
-        {/* Tier */}
-        <div className="bg-white border border-[var(--color-border-light)] rounded-lg p-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border-l-4 border-l-[var(--color-secondary)]">
-          <p className="text-xs font-medium text-[var(--color-text-muted)] mb-2 uppercase tracking-wider">Tier Saat Ini</p>
-          <p className="text-xl font-bold text-[var(--color-title)] uppercase tracking-wide">{currentTier.nama}</p>
-        </div>
-
-        {/* Total Miles */}
-        <div className="bg-white border border-[var(--color-border-light)] rounded-lg p-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border-l-4 border-l-[var(--color-secondary)]">
-          <p className="text-xs font-medium text-[var(--color-text-muted)] mb-2 uppercase tracking-wider">Total Miles</p>
-          <p className="text-xl font-bold text-[var(--color-title)]">{member.total_miles.toLocaleString('id-ID')}</p>
-        </div>
-
-        {/* Award Miles */}
-        <div className="bg-white border border-[var(--color-border-light)] rounded-lg p-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)] border-l-4 border-l-[var(--color-secondary)]">
-          <p className="text-xs font-medium text-[var(--color-text-muted)] mb-2 uppercase tracking-wider">Award Miles</p>
-          <p className="text-xl font-bold text-[var(--color-secondary)]">{member.award_miles.toLocaleString('id-ID')}</p>
+        <div className="flex gap-4">
+          <div className="bg-blue-50 px-6 py-4 rounded-xl border border-blue-100 text-center">
+            <p className="text-xs font-bold text-blue-400 uppercase tracking-wider">Tier</p>
+            <p className="text-2xl font-black text-blue-700">{profile.tier_name}</p>
+          </div>
+          <div className="bg-indigo-50 px-6 py-4 rounded-xl border border-indigo-100 text-center">
+            <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider">Award Miles</p>
+            <p className="text-2xl font-black text-indigo-700">{profile.award_miles.toLocaleString()}</p>
+          </div>
+          <div className="bg-purple-50 px-6 py-4 rounded-xl border border-purple-100 text-center">
+            <p className="text-xs font-bold text-purple-400 uppercase tracking-wider">Total Miles</p>
+            <p className="text-2xl font-black text-purple-700">{profile.total_miles.toLocaleString()}</p>
+          </div>
         </div>
       </div>
 
-      {/* Progress Bar ke tier berikutnya */}
-      {nextTier && (
-        <div className="bg-white border border-[var(--color-border-light)] rounded-lg p-5 mb-8 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-          <div className="flex justify-between items-center mb-3">
-            <p className="text-sm font-semibold text-[var(--color-title)]">
-              Menuju Tier <span className="uppercase font-bold tracking-wider">{nextTier.nama}</span>
-            </p>
-            <p className="text-sm font-bold text-[var(--color-secondary)]">
-              {member.total_miles.toLocaleString('id-ID')} / {nextTier.minimal_tier_miles.toLocaleString('id-ID')} Miles
-            </p>
-          </div>
-          <div className="h-2.5 w-full bg-[var(--color-border-light)] rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[var(--color-secondary)] rounded-full transition-all duration-700"
-              style={{ width: `${tierProgress}%` }}
-            />
-          </div>
-          <p className="text-xs text-[var(--color-text-muted)] mt-2">
-            Butuh <span className="font-bold text-[var(--color-secondary)]">{Math.max(0, nextTier.minimal_tier_miles - member.total_miles).toLocaleString('id-ID')} miles</span> lagi untuk naik tier
-          </p>
-        </div>
-      )}
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Info Pribadi */}
-        <div className="bg-white border border-[var(--color-border-light)] rounded-lg p-6 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
-          <h2 className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-5">Informasi Pribadi</h2>
-          <div className="space-y-4">
-            <div>
-              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-0.5">Nama Lengkap</p>
-              <p className="text-sm font-semibold text-[var(--color-title)]">{member.salutation} {member.first_mid_name} {member.last_name}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-0.5">Email</p>
-              <p className="text-sm text-[var(--color-title)]">{member.email}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-0.5">Nomor HP</p>
-              <p className="text-sm text-[var(--color-title)]">{member.country_code} {member.mobile_number}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-0.5">Kewarganegaraan</p>
-              <p className="text-sm text-[var(--color-title)]">{member.kewarganegaraan}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-0.5">Tanggal Lahir</p>
-              <p className="text-sm text-[var(--color-title)]">{member.tanggal_lahir}</p>
-            </div>
-            <div>
-              <p className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-0.5">Tanggal Bergabung</p>
-              <p className="text-sm text-[var(--color-title)]">{member.tanggal_bergabung}</p>
-            </div>
-          </div>
-        </div>
-
-        {/* 5 Transaksi Terbaru */}
-        <div className="lg:col-span-2 bg-white border border-[var(--color-border-light)] rounded-lg shadow-[0_2px_8px_rgba(0,0,0,0.06)] overflow-hidden">
-          <div className="px-6 py-4 border-b border-[var(--color-border-light)] bg-[var(--color-bg-subtle)]">
-            <h2 className="text-xs font-bold text-[var(--color-title)] uppercase tracking-widest">5 Transaksi Terbaru</h2>
-          </div>
-          <div className="overflow-x-auto">
-            <table className="w-full text-left">
-              <thead>
-                <tr className="border-b border-[var(--color-border-light)]">
-                  <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Tipe</th>
-                  <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Deskripsi</th>
-                  <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)]">Tanggal</th>
-                  <th className="py-3 px-5 text-[10px] font-bold uppercase tracking-widest text-[var(--color-text-muted)] text-right">Jumlah Miles</th>
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold text-gray-800">5 Transaksi Terakhir</h2>
+        <div className="overflow-hidden rounded-2xl border border-gray-200 shadow-sm">
+          <table className="min-w-full divide-y divide-gray-200 bg-white">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tanggal</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Tipe</th>
+                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Keterangan</th>
+                <th className="px-6 py-4 text-right text-xs font-bold text-gray-500 uppercase tracking-wider">Jumlah</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-200">
+              {transactions.length > 0 ? transactions.map((t: any, i: number) => (
+                <tr key={i} className="hover:bg-gray-50 transition-colors">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                    {new Date(t.timestamp).toLocaleString()}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                      t.tipe.includes('Out') || t.tipe === 'Redeem' 
+                      ? 'bg-red-100 text-red-700' 
+                      : 'bg-green-100 text-green-700'
+                    }`}>
+                      {t.tipe}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 text-sm text-gray-700">{t.keterangan}</td>
+                  <td className={`px-6 py-4 whitespace-nowrap text-sm text-right font-bold ${
+                    t.amount < 0 ? 'text-red-600' : 'text-green-600'
+                  }`}>
+                    {t.amount > 0 ? '+' : ''}{t.amount.toLocaleString()}
+                  </td>
                 </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--color-border-light)]">
-                {recent.length > 0 ? recent.map((t, i) => (
-                  <tr key={i} className="hover:bg-[var(--color-bg-subtle)] transition-colors">
-                    <td className="py-4 px-5 text-xs font-semibold text-[var(--color-title)]">{t.tipe}</td>
-                    <td className="py-4 px-5 text-xs text-[var(--color-text-muted)]">{t.deskripsi}</td>
-                    <td className="py-4 px-5 text-xs text-[var(--color-text-muted)]">{t.tanggal}</td>
-                    <td className={`py-4 px-5 text-xs font-bold text-right ${t.arah === 'plus' ? 'text-[var(--color-secondary)]' : 'text-[var(--color-danger)]'}`}>
-                      {t.arah === 'plus' ? '+' : '-'}{t.jumlah.toLocaleString('id-ID')}
-                    </td>
-                  </tr>
-                )) : (
-                  <tr>
-                    <td colSpan={4} className="py-10 text-center text-sm text-[var(--color-text-muted)] italic">
-                      Belum ada transaksi.
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+              )) : (
+                <tr>
+                  <td colSpan={4} className="px-6 py-8 text-center text-gray-500 italic">Belum ada transaksi</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -37,25 +37,32 @@ export default function StafKlaimPage() {
   const [filterTanggalDari, setFilterTanggalDari] = useState('');
   const [filterTanggalSampai, setFilterTanggalSampai] = useState('');
 
-  useEffect(() => {
-    // Staf bisa lihat semua klaim — gunakan endpoint khusus staf
-    fetch('/api/klaim/semua')
-      .then(r => r.json())
-      .then(data => setKlaim(Array.isArray(data) ? data : []))
-      .catch(() => setKlaim([]))
-      .finally(() => setLoading(false));
-  }, []);
+  const fetchKlaim = async () => {
+    setLoading(true);
+    const params = new URLSearchParams();
+    if (filterStatus) params.append('status', filterStatus);
+    if (filterMaskapai) params.append('maskapai', filterMaskapai);
+    if (filterTanggalDari) params.append('startDate', filterTanggalDari);
+    if (filterTanggalSampai) params.append('endDate', filterTanggalSampai);
 
-  const filtered = klaim.filter(k => {
-    const matchStatus   = filterStatus === '' || k.status_penerimaan === filterStatus;
-    const matchMaskapai = filterMaskapai === '' || k.maskapai === filterMaskapai;
-    const tgl = String(k.timestamp).slice(0, 10);
-    const matchDari     = filterTanggalDari === '' || tgl >= filterTanggalDari;
-    const matchSampai   = filterTanggalSampai === '' || tgl <= filterTanggalSampai;
-    return matchStatus && matchMaskapai && matchDari && matchSampai;
-  });
+    try {
+      const res = await fetch(`/api/staf/klaim?${params.toString()}`);
+      if (!res.ok) throw new Error('Gagal memuat data');
+      const data = await res.json();
+      setKlaim(Array.isArray(data) ? data : []);
+    } catch {
+      setKlaim([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchKlaim();
+  }, [filterStatus, filterMaskapai, filterTanggalDari, filterTanggalSampai]);
 
   const maskapaiList = Array.from(new Set(klaim.map(k => k.maskapai))).filter(Boolean);
+  const filtered = klaim; // Already filtered by server
 
   return (
     <div className="max-w-7xl mx-auto p-6 md:p-10 font-sans">

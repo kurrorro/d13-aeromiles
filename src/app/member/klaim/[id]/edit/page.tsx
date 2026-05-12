@@ -38,7 +38,7 @@ export default function EditKlaimPage() {
 
   // Load klaim data
   useEffect(() => {
-    fetch(`/api/klaim/${id}`)
+    fetch(`/api/member/klaim/${id}`)
       .then(r => r.ok ? r.json() : Promise.reject())
       .then((data: KlaimData) => {
         setOriginal(data);
@@ -46,7 +46,7 @@ export default function EditKlaimPage() {
           maskapai: data.maskapai || '',
           bandara_asal: data.bandara_asal || '',
           bandara_tujuan: data.bandara_tujuan || '',
-          tanggal_penerbangan: data.tanggal_penerbangan?.slice(0, 10) || '',
+          tanggal_penerbangan: data.tanggal_penerbangan ? new Date(data.tanggal_penerbangan).toISOString().slice(0, 10) : '',
           flight_number: data.flight_number || '',
           nomor_tiket: data.nomor_tiket || '',
           kelas_kabin: data.kelas_kabin || '',
@@ -57,15 +57,13 @@ export default function EditKlaimPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Load bandara & maskapai dengan fallback dummy
+  // Load bandara & maskapai
   useEffect(() => {
-    fetch('/api/bandara')
+    fetch('/api/options')
       .then(r => r.ok ? r.json() : Promise.reject())
       .then(d => {
-        const b = d.bandara || [];
-        const m = d.maskapai || [];
-        setBandara(b.length > 0 ? b : DUMMY_BANDARA);
-        setMaskapai(m.length > 0 ? m : DUMMY_MASKAPAI);
+        setBandara(d.airports || []);
+        setMaskapai(d.airlines || []);
       })
       .catch(() => {
         setBandara(DUMMY_BANDARA);
@@ -131,7 +129,7 @@ export default function EditKlaimPage() {
     setIsSubmitting(true);
     setSubmitError('');
     try {
-      const res = await fetch(`/api/klaim/${id}`, {
+      const res = await fetch(`/api/member/klaim/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(form),

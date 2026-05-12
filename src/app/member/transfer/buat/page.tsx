@@ -29,16 +29,13 @@ export default function BuatTransferPage() {
   const [checkingPenerima, setCheckingPenerima] = useState(false);
 
   useEffect(() => {
-    fetch('/api/member/me')
+    fetch('/api/dashboard/member')
       .then(r => r.json())
-      .then(data => setMember(data))
-      .catch(() => {});
-
-    fetch('/api/transfer/saldo')
-      .then(res => res.json())
       .then(data => {
-        setSaldo(data.saldo || 0);
-      });
+        setMember(data.profile);
+        setSaldo(data.profile.award_miles || 0);
+      })
+      .catch(() => {});
   }, []);
 
   const awardMiles = saldo;
@@ -53,7 +50,7 @@ export default function BuatTransferPage() {
     const timer = setTimeout(async () => {
       setCheckingPenerima(true);
       try {
-        const res = await fetch(`/api/member/cari?email=${encodeURIComponent(form.email_penerima)}`);
+        const res = await fetch(`/api/member/search?email=${encodeURIComponent(form.email_penerima)}`);
         if (res.ok) {
           const data = await res.json();
           setPenerima({ nama: `${data.salutation} ${data.first_mid_name} ${data.last_name}`, nomor_member: data.nomor_member });
@@ -71,6 +68,7 @@ export default function BuatTransferPage() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
+    const actualName = name === 'email_penerima' ? 'email_penerima' : name; // Just to be safe
     setForm(prev => ({ ...prev, [name]: value }));
     if (errors[name]) setErrors(prev => ({ ...prev, [name]: '' }));
   };
@@ -106,13 +104,13 @@ export default function BuatTransferPage() {
     setIsSubmitting(true);
     setSubmitError('');
     try {
-      const res = await fetch('/api/transfer', {
+      const res = await fetch('/api/member/transfer', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email_penerima: form.email_penerima,
-          jumlah: parseInt(form.jumlah),
-          catatan: form.catatan || null,
+          recipientEmail: form.email_penerima,
+          amount: parseInt(form.jumlah),
+          note: form.catatan || null,
         }),
       });
       if (!res.ok) {
@@ -121,7 +119,7 @@ export default function BuatTransferPage() {
         setStep('form');
         return;
       }
-      router.push('/member/transfer');
+      router.push('/member/dashboard');
     } catch {
       setSubmitError('Terjadi kesalahan jaringan. Coba lagi.');
       setStep('form');
