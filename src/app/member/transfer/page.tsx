@@ -26,12 +26,12 @@ export default function TransferPage() {
 
   useEffect(() => {
     Promise.all([
-      fetch('/api/transfer').then(r => r.json()),
-      fetch('/api/transfer/saldo').then(r => r.json()),
+      fetch('/api/member/transfer/history').then(r => r.json()),
+      fetch('/api/dashboard/member').then(r => r.json()),
     ])
-      .then(([transferData, saldoData]) => {
+      .then(([transferData, memberData]) => {
         setTransfers(Array.isArray(transferData) ? transferData : []);
-        setAwardMiles(saldoData?.saldo ?? 0);
+        setAwardMiles(memberData?.profile?.award_miles ?? 0);
       })
       .catch(() => {})
       .finally(() => setLoading(false));

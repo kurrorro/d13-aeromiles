@@ -44,8 +44,8 @@ export default function StafKlaimDetailPage() {
   const [submitError, setSubmitError] = useState('');
 
   useEffect(() => {
-    fetch(`/api/klaim/${id}`)
-      .then(r => r.json())
+    fetch(`/api/staf/klaim/${id}`)
+      .then(r => r.ok ? r.json() : Promise.reject())
       .then(data => setKlaim(data))
       .catch(() => setKlaim(null))
       .finally(() => setLoading(false));
@@ -72,10 +72,10 @@ export default function StafKlaimDetailPage() {
     setIsSubmitting(true);
     setSubmitError('');
     try {
-      const res = await fetch(`/api/klaim/${id}`, {
+      const res = await fetch(`/api/staf/klaim/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ status_penerimaan: newStatus }),
+        body: JSON.stringify({ status: newStatus }),
       });
       if (!res.ok) {
         const data = await res.json();
