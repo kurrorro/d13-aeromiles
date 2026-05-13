@@ -39,11 +39,11 @@ export default function Navbar() {
   if (!mounted) return null;
 
   return (
-    <nav className="bg-white border-b border-[var(--color-border-light)] sticky top-0 z-50 font-sans shadow-sm">
+    <nav className="bg-[var(--color-primary)] sticky top-0 z-50 font-sans shadow-md">
       <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         
         <div className="flex items-center gap-8">
-          <Link href="/" className="text-xl font-bold tracking-tight text-[var(--color-primary)] hover:opacity-80 transition-opacity">
+          <Link href="/" className="text-xl font-bold tracking-tight text-white hover:opacity-80 transition-opacity">
             AeroMiles
           </Link>
 
@@ -56,8 +56,8 @@ export default function Navbar() {
                     href={link.href}
                     className={`text-[13px] font-medium transition-all py-5 border-b-2 ${
                       isActive(link.href) 
-                        ? 'text-[var(--color-primary)] border-[var(--color-primary)]' 
-                        : 'text-[var(--color-text-muted)] border-transparent hover:text-[var(--color-primary)]'
+                        ? 'text-white border-[var(--color-secondary)]' 
+                        : 'text-[rgba(255,255,255,0.7)] border-transparent hover:text-white hover:border-[rgba(255,255,255,0.5)]'
                     }`}
                   >
                     {link.name}
@@ -74,13 +74,13 @@ export default function Navbar() {
             <div className="flex items-center gap-6">
               <Link 
                 href="/auth/login" 
-                className="text-sm font-medium text-[var(--color-title)] hover:text-[var(--color-primary)] transition-colors"
+                className="text-sm font-medium text-white hover:text-[var(--color-secondary)] transition-colors"
               >
                 Login
               </Link>
               <Link 
                 href="/auth/register" 
-                className="text-sm font-bold text-[var(--color-primary)] hover:opacity-80 transition-colors"
+                className="text-sm font-bold text-[var(--color-secondary)] hover:opacity-80 transition-colors"
               >
                 Registrasi
               </Link>
@@ -92,11 +92,11 @@ export default function Navbar() {
                 className="flex items-center gap-3 group focus:outline-none"
               >
                 <div className="text-right hidden sm:block">
-                  <p className="text-sm font-semibold text-[var(--color-title)] leading-none">{session?.user?.name}</p>
-                  <p className="text-[10px] text-[var(--color-primary)] uppercase tracking-widest mt-1 font-bold">{session?.user?.role}</p>
+                  <p className="text-sm font-semibold text-white leading-none">{session?.user?.name}</p>
+                  <p className="text-[10px] text-[var(--color-secondary)] uppercase tracking-widest mt-1 font-bold">{session?.user?.role}</p>
                 </div>
-                {/* Avatar (Primary Color Accents) */}
-                <div className="w-9 h-9 rounded-full bg-[var(--color-bg-subtle)] border border-[var(--color-border-light)] flex items-center justify-center font-bold text-sm text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all">
+                {/* Avatar (Secondary Color Accents) */}
+                <div className="w-9 h-9 rounded-full bg-[var(--color-secondary)] flex items-center justify-center font-bold text-sm text-white group-hover:bg-white group-hover:text-[var(--color-secondary)] transition-all">
                   {session?.user?.name?.charAt(0).toUpperCase()}
                 </div>
               </button>
