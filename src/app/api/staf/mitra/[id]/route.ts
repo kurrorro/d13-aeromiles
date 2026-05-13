@@ -3,6 +3,32 @@ import pool from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  const session = await getServerSession(authOptions);
+  if (!session || session.user?.role !== 'staf') {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  try {
+    const emailMitra = decodeURIComponent(params.id);
+    const res = await pool.query(`
+      SELECT email_mitra, id_penyedia, nama_mitra, tanggal_kerja_sama
+      FROM MITRA 
+      WHERE email_mitra = $1
+    `, [emailMitra]);
+
+    if (res.rows.length === 0) return NextResponse.json({ error: 'Not Found' }, { status: 404 });
+
+    if (res.rows[0].tanggal_kerja_sama) {
+      res.rows[0].tanggal_kerja_sama = new Date(res.rows[0].tanggal_kerja_sama).toISOString().split('T')[0];
+    }
+
+    return NextResponse.json(res.rows[0]);
+  } catch (error) {
+    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  }
+}
+
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {

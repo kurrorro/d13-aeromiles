@@ -4,37 +4,66 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
 
-// Mock data for initial fill
-const mockHadiah = {
-  kode_hadiah: 'RWD-001',
-  nama: 'Diskon Menginap 20%',
-  miles: 5000,
-  penyedia: 'Hotel Santika',
-  deskripsi: 'Diskon 20% untuk menginap di Hotel Santika seluruh Indonesia. Berlaku untuk semua tipe kamar kecuali Suite.',
-  valid_start: '2025-01-01',
-  program_end: '2025-12-31'
-};
-
 export default function EditHadiah() {
   const router = useRouter();
   const params = useParams();
   const kodeId = params.id as string;
   
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [formData, setFormData] = useState(mockHadiah);
+  const [penyediaList, setPenyediaList] = useState<{id_penyedia: number, nama: string, jenis: string}[]>([]);
+  const [formData, setFormData] = useState({
+    nama: '',
+    id_penyedia: '',
+    miles: 0,
+    deskripsi: '',
+    valid_start_date: '',
+    program_end: ''
+  });
 
   useEffect(() => {
-    // In real app, fetch by kodeId
-    setFormData(mockHadiah);
+    // Fetch current data
+    fetch(`/api/staf/hadiah/${kodeId}`)
+      .then(res => res.json())
+      .then(data => {
+        setFormData({
+          nama: data.nama || '',
+          id_penyedia: data.id_penyedia?.toString() || '',
+          miles: data.miles || 0,
+          deskripsi: data.deskripsi || '',
+          valid_start_date: data.valid_start_date ? new Date(data.valid_start_date).toISOString().split('T')[0] : '',
+          program_end: data.program_end ? new Date(data.program_end).toISOString().split('T')[0] : ''
+        });
+      })
+      .catch(err => console.error('Error fetching reward detail:', err));
+
+    // Fetch providers for dropdown
+    fetch('/api/staf/penyedia')
+      .then(res => res.json())
+      .then(data => setPenyediaList(data))
+      .catch(err => console.error('Error fetching providers:', err));
   }, [kodeId]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    setTimeout(() => {
+    try {
+      const res = await fetch(`/api/staf/hadiah/${kodeId}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        router.push('/staf/hadiah');
+      } else {
+        alert(data.error);
+      }
+    } catch (error) {
+      alert('Gagal memperbarui hadiah');
+    } finally {
       setIsSubmitting(false);
-      router.push('/staf/hadiah');
-    }, 1000);
+    }
   };
 
   return (
@@ -75,15 +104,14 @@ export default function EditHadiah() {
             <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block mb-1.5">Penyedia</label>
             <select 
               required 
-              value={formData.penyedia}
-              onChange={(e) => setFormData({...formData, penyedia: e.target.value})}
+              value={formData.id_penyedia}
+              onChange={(e) => setFormData({...formData, id_penyedia: e.target.value})}
               className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-secondary)] outline-none bg-transparent font-medium transition-colors"
             >
-              <option>Hotel Santika</option>
-              <option>Garuda Indonesia</option>
-              <option>Lion Air</option>
-              <option>Grand Hyatt Jakarta</option>
-              <option>Restoran Padang Sederhana</option>
+              <option value="">Pilih Penyedia...</option>
+              {penyediaList.map(p => (
+                <option key={p.id_penyedia} value={p.id_penyedia}>{p.nama}</option>
+              ))}
             </select>
           </div>
 
@@ -113,8 +141,8 @@ export default function EditHadiah() {
             <input 
               type="date" 
               required
-              value={formData.valid_start}
-              onChange={(e) => setFormData({...formData, valid_start: e.target.value})}
+              value={formData.valid_start_date}
+              onChange={(e) => setFormData({...formData, valid_start_date: e.target.value})}
               className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-secondary)] outline-none font-medium bg-transparent transition-colors"
             />
           </div>
