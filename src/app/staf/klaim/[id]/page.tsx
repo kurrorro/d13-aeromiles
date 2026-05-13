@@ -42,6 +42,7 @@ export default function StafKlaimDetailPage() {
   const [processed, setProcessed] = useState(false);
   const [finalStatus, setFinalStatus] = useState('');
   const [submitError, setSubmitError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
     fetch(`/api/staf/klaim/${id}`)
@@ -77,13 +78,10 @@ export default function StafKlaimDetailPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
       });
-      if (!res.ok) {
-        const data = await res.json();
-        setSubmitError(data.error || 'Gagal memproses klaim');
-        return;
-      }
+      const data = await res.json();
       setProcessed(true);
       setFinalStatus(newStatus);
+      setSuccessMessage(data.message);
       setShowConfirmModal(false);
     } catch {
       setSubmitError('Terjadi kesalahan jaringan.');
@@ -217,8 +215,7 @@ export default function StafKlaimDetailPage() {
       {processed && (
         <div className={`rounded-lg p-5 ${finalStatus === 'Disetujui' ? 'bg-[var(--color-success-light)] border border-[var(--color-success)]' : 'bg-[var(--color-danger-light)] border border-[var(--color-danger)]'}`}>
           <p className={`font-semibold ${finalStatus === 'Disetujui' ? 'text-[var(--color-success)]' : 'text-[var(--color-danger)]'}`}>
-            Klaim telah berhasil <strong>{finalStatus === 'Disetujui' ? 'disetujui' : 'ditolak'}</strong>.
-            {finalStatus === 'Disetujui' && ' Miles akan segera ditambahkan ke akun member.'}
+            {successMessage || `Klaim telah berhasil ${finalStatus === 'Disetujui' ? 'disetujui' : 'ditolak'}.`}
           </p>
           <p className="text-xs text-[var(--color-text-muted)] mt-1">Diproses oleh: {session?.user?.email}</p>
           <Link href="/staf/klaim" className="text-sm font-semibold text-[var(--color-primary)] hover:underline mt-3 inline-block">

@@ -119,7 +119,9 @@ export default function BuatTransferPage() {
         setStep('form');
         return;
       }
-      router.push('/member/dashboard');
+      const data = await res.json();
+      alert(data.message || 'Transfer berhasil!');
+      router.push('/member/transfer');
     } catch {
       setSubmitError('Terjadi kesalahan jaringan. Coba lagi.');
       setStep('form');

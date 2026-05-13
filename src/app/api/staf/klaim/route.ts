@@ -6,7 +6,7 @@ import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 export async function GET(req: NextRequest) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Akses ditolak. Halaman ini hanya untuk Staf.' }, { status: 403 });
   }
 
   const { searchParams } = new URL(req.url);

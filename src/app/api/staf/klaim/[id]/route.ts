@@ -7,7 +7,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Akses ditolak. Halaman ini hanya untuk Staf.' }, { status: 403 });
   }
 
   try {
@@ -37,7 +37,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   const { id } = await params;
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    return NextResponse.json({ error: 'Akses ditolak. Halaman ini hanya untuk Staf.' }, { status: 403 });
   }
 
   const body = await req.json();
@@ -47,8 +47,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
     return NextResponse.json({ error: 'Status tidak valid' }, { status: 400 });
   }
 
+  const client = await pool.connect();
+  let triggerNotice = '';
+  client.on('notice', (msg) => {
+    if (msg.message?.startsWith('SUKSES:')) triggerNotice = msg.message;
+  });
+
   try {
-    const res = await pool.query(`
+    const res = await client.query(`
       UPDATE CLAIM_MISSING_MILES SET
         status_penerimaan = $1,
         email_staf = $2
@@ -60,9 +66,14 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       return NextResponse.json({ error: 'Claim not found' }, { status: 404 });
     }
 
-    return NextResponse.json(res.rows[0]);
+    return NextResponse.json({ 
+      data: res.rows[0],
+      message: triggerNotice || (status === 'Disetujui' ? 'Klaim berhasil disetujui.' : 'Klaim telah ditolak.')
+    });
   } catch (error) {
     console.error('Staff Update Claim Error:', error);
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+  } finally {
+    client.release();
   }
 }

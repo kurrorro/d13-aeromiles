@@ -22,6 +22,11 @@ export async function POST(req: NextRequest) {
   }
 
   const client = await pool.connect();
+  let triggerNotice = '';
+  client.on('notice', (msg) => {
+    if (msg.message?.startsWith('SUKSES:')) triggerNotice = msg.message;
+  });
+
   try {
     // The trigger trg_update_miles_transfer will handle the award_miles updates and balance check
     await client.query(`
@@ -29,7 +34,9 @@ export async function POST(req: NextRequest) {
       VALUES ($1, $2, CURRENT_TIMESTAMP, $3, $4)
     `, [senderEmail, recipientEmail, amount, note]);
 
-    return NextResponse.json({ message: 'Transfer berhasil!' });
+    return NextResponse.json({ 
+      message: triggerNotice || 'Transfer berhasil dicatat.' 
+    });
   } catch (error: any) {
     console.error('Transfer Error:', error);
     const message = error.message || 'Internal Server Error';
