@@ -1,19 +1,54 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { DUMMY_TIERS } from '@/dummy/tier';
-import { DUMMY_MEMBERS } from '@/dummy/member';
+
+interface Tier {
+  id_tier: string;
+  nama: string;
+  minimal_frekuensi_terbang: number;
+  minimal_tier_miles: number;
+}
 
 export default function InfoTierPage() {
   const { data: session } = useSession();
-  
-  const currentMember = DUMMY_MEMBERS.find(m => m.email === session?.user?.email) || DUMMY_MEMBERS[0];
-  
-  const currentTier = currentMember.id_tier; 
-  const currentMiles = currentMember.total_miles;
+  const [tiers, setTiers] = useState<Tier[]>([]);
+  const [member, setMember] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
-  const currentTierIndex = DUMMY_TIERS.findIndex(t => t.id_tier === currentTier);
-  const nextTier = DUMMY_TIERS[currentTierIndex + 1] || null;
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [tiersRes, profileRes] = await Promise.all([
+          fetch('/api/tier'),
+          fetch('/api/profile')
+        ]);
+
+        if (tiersRes.ok) {
+          const data = await tiersRes.json();
+          setTiers(data);
+        }
+        if (profileRes.ok) {
+          const data = await profileRes.json();
+          setMember(data.profile);
+        }
+      } catch (error) {
+        console.error('Error fetching tier data:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (session) fetchData();
+  }, [session]);
+  
+  if (loading) return <div className="p-12 text-center text-text-muted">Memuat informasi tier...</div>;
+
+  const currentTier = member?.id_tier; 
+  const currentMiles = member?.total_miles || 0;
+
+  const currentTierIndex = tiers.findIndex(t => t.id_tier === currentTier);
+  const nextTier = tiers[currentTierIndex + 1] || null;
   const milesNeeded = nextTier 
     ? Math.max(0, nextTier.minimal_tier_miles - currentMiles)
     : 0;
@@ -33,14 +68,14 @@ export default function InfoTierPage() {
           <div className="mt-4 h-2 w-full bg-border-light rounded-full overflow-hidden">
             <div 
               className="h-full bg-secondary transition-all" 
-              style={{ width: `${(currentMiles / nextTier.minimal_tier_miles) * 100}%` }}
+              style={{ width: `${Math.min(100, (currentMiles / nextTier.minimal_tier_miles) * 100)}%` }}
             />
           </div>
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {DUMMY_TIERS.map((tier, index) => {
+        {tiers.map((tier) => {
           const isCurrent = tier.id_tier === currentTier;
           
           return (
