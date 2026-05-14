@@ -43,7 +43,7 @@ BEGIN
     ORDER BY minimal_tier_miles DESC, minimal_frekuensi_terbang DESC
     LIMIT 1;
 
-    IF (NEW.id_tier IS DISTINCT FROM new_tier_id) THEN
+    IF new_tier_id IS NOT NULL AND (NEW.id_tier IS DISTINCT FROM new_tier_id) THEN
         SELECT nama INTO old_tier_nama FROM TIER WHERE id_tier = OLD.id_tier;
         
         NEW.id_tier := new_tier_id;
