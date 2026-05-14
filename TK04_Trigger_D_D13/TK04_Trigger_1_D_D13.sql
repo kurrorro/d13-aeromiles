@@ -1,3 +1,4 @@
+SET search_path TO AEROMILES; 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
 CREATE OR REPLACE FUNCTION cek_duplikasi_email()

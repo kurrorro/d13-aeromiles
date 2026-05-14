@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useToast } from '@/components/ToastProvider';
 
 export default function IdentitasMemberPage() {
+  const { showToast, showConfirm } = useToast();
   const [dokumen, setDokumen] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedJenis, setSelectedJenis] = useState('');
@@ -28,23 +30,26 @@ export default function IdentitasMemberPage() {
   };
 
   const deleteDokumen = async (nomor: string) => {
-    const confirmMessage = `Apakah Anda yakin ingin menghapus dokumen ${nomor}? 
-    
-Tindakan ini permanen dan dokumen tidak dapat dikembalikan.`;
+    const confirmed = await showConfirm({
+      title: 'Hapus Dokumen Identitas',
+      message: `Apakah Anda yakin ingin menghapus dokumen ${nomor}? Tindakan ini permanen dan dokumen tidak dapat dikembalikan.`,
+      confirmText: 'Ya, Hapus',
+      type: 'danger'
+    });
 
-    if (confirm(confirmMessage)) {
+    if (confirmed) {
       try {
         const res = await fetch(`/api/member/identitas/${encodeURIComponent(nomor)}`, { method: 'DELETE' });
         if (res.ok) {
           setDokumen(dokumen.filter(d => d.nomor !== nomor));
-          alert(`Dokumen ${nomor} telah berhasil dihapus dari sistem.`);
+          showToast(`Dokumen ${nomor} telah berhasil dihapus.`, 'success');
         } else {
           const data = await res.json();
-          alert(`Gagal menghapus dokumen: ${data.error}`);
+          showToast(`Gagal menghapus dokumen: ${data.error}`, 'error');
         }
       } catch (err) {
         console.error('Error deleting dokumen:', err);
-        alert('Terjadi kesalahan saat menghapus dokumen.');
+        showToast('Terjadi kesalahan jaringan.', 'error');
       }
     }
   };

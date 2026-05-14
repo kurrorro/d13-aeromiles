@@ -20,8 +20,10 @@ export const authOptions: NextAuthOptions = {
                       THEN 'member'
                       WHEN EXISTS (SELECT 1 FROM STAF WHERE email = p.email) 
                       THEN 'staf'
-                 END AS role
+                 END AS role,
+                 s.kode_maskapai
           FROM PENGGUNA p
+          LEFT JOIN STAF s ON p.email = s.email
           WHERE LOWER(p.email) = LOWER($1);
         `;
 
@@ -41,6 +43,7 @@ export const authOptions: NextAuthOptions = {
             name: `${user.first_mid_name} ${user.last_name || ''}`.trim(),
             email: user.email,
             role: user.role,
+            kode_maskapai: user.kode_maskapai
           };
         } catch (error) {
           console.error("Login error:", error);
@@ -51,11 +54,17 @@ export const authOptions: NextAuthOptions = {
   ],
   callbacks: {
     async jwt({ token, user }) {
-      if (user) token.role = user.role;
+      if (user) {
+        token.role = user.role;
+        token.kode_maskapai = (user as any).kode_maskapai;
+      }
       return token;
     },
     async session({ session, token }) {
-      if (session.user) session.user.role = token.role as string;
+      if (session.user) {
+        session.user.role = token.role as string;
+        (session.user as any).kode_maskapai = token.kode_maskapai as string;
+      }
       return session;
     },
   },
