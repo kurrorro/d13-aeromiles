@@ -50,9 +50,7 @@ CREATE TABLE MEMBER (
     email               VARCHAR(100)    PRIMARY KEY REFERENCES PENGGUNA(email),
     nomor_member        VARCHAR(20)     NOT NULL UNIQUE,
     tanggal_bergabung   DATE            NOT NULL,
-    id_tier             VARCHAR(10)     NOT NULL REFERENCES TIER(id_tier),
-    award_miles         INT             DEFAULT 0,
-    total_miles         INT             DEFAULT 0
+    id_tier             VARCHAR(10)     NOT NULL REFERENCES TIER(id_tier)
 );
 
 CREATE TABLE STAF (

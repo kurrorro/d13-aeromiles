@@ -25,8 +25,7 @@ export async function GET(request: Request) {
       `;
     } else {
       profileQuery = `
-        SELECT p.*, m.nomor_member, m.tanggal_bergabung, m.id_tier, t.nama as nama_tier,
-               m.award_miles, m.total_miles
+        SELECT p.*, m.nomor_member, m.tanggal_bergabung, m.id_tier, t.nama as nama_tier
         FROM PENGGUNA p 
         JOIN MEMBER m ON p.email = m.email
         LEFT JOIN TIER t ON m.id_tier = t.id_tier

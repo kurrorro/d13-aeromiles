@@ -23,10 +23,10 @@ export async function GET(req: NextRequest) {
 
         const transactionsRes = await pool.query(`
         SELECT 'Transfer' AS tipe, 
-               p.first_mid_name || ' ' || p.last_name || ' (ke: ' || t.email_member_2 || ')' AS nama_member,
+               p.first_mid_name || ' ' || p.last_name AS nama_member,
                t.email_member_1 AS email_member,
                t.jumlah AS miles, t.timestamp,
-               'T-' || t.email_member_1 || '-' || t.timestamp::text as id
+               'T-' || t.email_member_1 || '-' || t.timestamp as id
         FROM TRANSFER t JOIN PENGGUNA p ON t.email_member_1 = p.email
 
         UNION ALL
@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
         SELECT 'Redeem',
                p.first_mid_name || ' ' || p.last_name,
                r.email_member, h.miles * -1, r.timestamp,
-               'R-' || r.email_member || '-' || r.timestamp::text
+               'R-' || r.email_member || '-' || r.timestamp
         FROM REDEEM r JOIN HADIAH h ON r.kode_hadiah = h.kode_hadiah
         JOIN PENGGUNA p ON r.email_member = p.email
 
@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
         SELECT 'Pembelian Package',
                p.first_mid_name || ' ' || p.last_name,
                map.email_member, ap.jumlah_award_miles, map.timestamp,
-               'P-' || map.email_member || '-' || map.timestamp::text
+               'P-' || map.email_member || '-' || map.timestamp
         FROM MEMBER_AWARD_MILES_PACKAGE map
         JOIN AWARD_MILES_PACKAGE ap ON map.id_award_miles_package = ap.id
         JOIN PENGGUNA p ON map.email_member = p.email
@@ -53,7 +53,7 @@ export async function GET(req: NextRequest) {
         SELECT 'Klaim Disetujui',
                p.first_mid_name || ' ' || p.last_name,
                c.email_member, 1000, c.timestamp,
-               'C-' || c.id::text
+               'C-' || c.id
         FROM CLAIM_MISSING_MILES c JOIN PENGGUNA p ON c.email_member = p.email
         WHERE c.status_penerimaan = 'Disetujui'
 
