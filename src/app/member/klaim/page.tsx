@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useToast } from '@/components/ToastProvider';
 
 const STATUS_STYLE: Record<string, string> = {
   'Menunggu':  'bg-[var(--color-warning-light)] text-[var(--color-warning)]',
@@ -28,12 +29,10 @@ type Klaim = {
 };
 
 export default function MemberKlaimPage() {
+  const { showToast, showConfirm } = useToast();
   const [klaim, setKlaim] = useState<Klaim[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('');
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedId, setSelectedId] = useState<number | null>(null);
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const fetchKlaim = async () => {
     setLoading(true);
@@ -53,21 +52,26 @@ export default function MemberKlaimPage() {
 
   const filtered = klaim.filter(k => filterStatus === '' || k.status_penerimaan === filterStatus);
 
-  const handleBatalkan = (id: number) => {
-    setSelectedId(id);
-    setShowDeleteModal(true);
-  };
+  const handleBatalkan = async (id: number) => {
+    const confirmed = await showConfirm({
+      title: 'Batalkan Klaim',
+      message: `Apakah Anda yakin ingin membatalkan klaim CLM-${String(id).padStart(3, '0')}? Tindakan ini permanen.`,
+      confirmText: 'Ya, Batalkan',
+      type: 'danger'
+    });
 
-  const confirmBatalkan = async () => {
-    if (selectedId === null) return;
-    setIsDeleting(true);
-    try {
-      await fetch(`/api/member/klaim/${selectedId}`, { method: 'DELETE' });
-      setKlaim(prev => prev.filter(k => k.id !== selectedId));
-    } finally {
-      setIsDeleting(false);
-      setShowDeleteModal(false);
-      setSelectedId(null);
+    if (confirmed) {
+      try {
+        const res = await fetch(`/api/member/klaim/${id}`, { method: 'DELETE' });
+        if (res.ok) {
+          setKlaim(prev => prev.filter(k => k.id !== id));
+          showToast('Klaim telah berhasil dibatalkan.', 'success');
+        } else {
+          showToast('Gagal membatalkan klaim.', 'error');
+        }
+      } catch {
+        showToast('Terjadi kesalahan jaringan.', 'error');
+      }
     }
   };
 
@@ -196,42 +200,6 @@ export default function MemberKlaimPage() {
         )}
       </div>
 
-      {/* Delete Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 px-4">
-          <div className="bg-white rounded-xl shadow-xl p-7 w-full max-w-md border border-[var(--color-border-light)]">
-            <div className="flex items-start gap-4 mb-5">
-              <div className="w-10 h-10 rounded-full bg-[var(--color-danger-light)] flex items-center justify-center shrink-0">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--color-danger)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                  <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                </svg>
-              </div>
-              <div>
-                <h3 className="text-base font-bold text-[var(--color-title)] mb-1">Batalkan Klaim</h3>
-                <p className="text-sm text-[var(--color-text-muted)]">
-                  Apakah Anda yakin ingin membatalkan klaim <strong>CLM-{String(selectedId).padStart(3, '0')}</strong>? Tindakan ini permanen dan tidak dapat dibatalkan.
-                </p>
-              </div>
-            </div>
-            <div className="flex gap-3 justify-end">
-              <button
-                onClick={() => { setShowDeleteModal(false); setSelectedId(null); }}
-                disabled={isDeleting}
-                className="px-5 py-2 text-sm font-semibold border border-[var(--color-border-light)] rounded-lg text-[var(--color-text-muted)] hover:bg-[var(--color-bg-subtle)] transition-colors disabled:opacity-50"
-              >
-                Batal
-              </button>
-              <button
-                onClick={confirmBatalkan}
-                disabled={isDeleting}
-                className="px-5 py-2 text-sm font-semibold bg-[var(--color-danger)] text-white rounded-lg hover:opacity-90 transition-all disabled:opacity-50"
-              >
-                {isDeleting ? 'Membatalkan...' : 'Ya, Batalkan'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 }

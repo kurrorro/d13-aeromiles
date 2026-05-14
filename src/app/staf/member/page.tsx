@@ -1,8 +1,10 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useToast } from '@/components/ToastProvider';
 
 export default function StaffMemberManagement() {
+  const { showToast, showConfirm } = useToast();
   const [members, setMembers] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTier, setSelectedTier] = useState('');
@@ -28,27 +30,26 @@ export default function StaffMemberManagement() {
   };
 
   const deleteMember = async (nomor: string) => {
-    const confirmMessage = `Apakah Anda yakin ingin menghapus member ${nomor}? 
-    
-    Tindakan ini permanen dan akan menghapus seluruh data terkait:
-    - Identitas
-    - Klaim Missing Miles
-    - Transfer Miles
-    - Redeem Miles`;
+    const confirmed = await showConfirm({
+      title: 'Hapus Member',
+      message: `Apakah Anda yakin ingin menghapus member ${nomor}? Tindakan ini permanen dan akan menghapus seluruh data terkait (Identitas, Klaim, Transfer, Redeem).`,
+      confirmText: 'Ya, Hapus Permanen',
+      type: 'danger'
+    });
 
-    if (confirm(confirmMessage)) {
+    if (confirmed) {
       try {
         const res = await fetch(`/api/staf/member/${nomor}`, { method: 'DELETE' });
         if (res.ok) {
           setMembers(members.filter(m => m.nomor_member !== nomor));
-          alert(`Member ${nomor} telah berhasil dihapus dari sistem.`);
+          showToast(`Member ${nomor} telah berhasil dihapus.`, 'success');
         } else {
           const data = await res.json();
-          alert(`Gagal menghapus: ${data.error}`);
+          showToast(`Gagal menghapus: ${data.error}`, 'error');
         }
       } catch (err) {
         console.error('Error deleting member:', err);
-        alert('Terjadi kesalahan saat menghapus member.');
+        showToast('Terjadi kesalahan jaringan.', 'error');
       }
     }
   };

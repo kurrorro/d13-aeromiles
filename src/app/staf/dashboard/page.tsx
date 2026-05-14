@@ -30,64 +30,95 @@ export default function StaffDashboard() {
   const { profile, waiting_count, approved_count, rejected_count } = data;
 
   return (
-    <div className="max-w-7xl mx-auto p-4 md:p-8 font-sans text-title">
-      <div className="bg-white rounded-xl shadow-[0_2px_8px_rgba(0,0,0,0.04)] border border-[var(--color-border-light)] p-6 md:p-10">
-        <header className="mb-8">
-          <h1 className="text-2xl font-semibold text-[var(--color-title)] tracking-tight">Panel Kerja Staf</h1>
-        </header>
-
-        <section className="mb-10">
-          <h2 className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-[0.2em] mb-3">Informasi Petugas</h2>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-x-6 gap-y-4 border-t border-[var(--color-border-light)] pt-4">
-            <div>
-              <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block">ID Staf</label>
-              <p className="text-xs font-mono font-bold text-[var(--color-title)]">{profile.id_staf}</p>
-            </div>
-            <div>
-              <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block">Nama Lengkap</label>
-              <p className="text-xs font-medium text-[var(--color-title)]">{profile.salutation} {profile.first_mid_name} {profile.last_name}</p>
-            </div>
-            <div>
-              <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block">Email</label>
-              <p className="text-xs font-medium text-[var(--color-title)] truncate">{session?.user?.email}</p>
-            </div>
-            <div>
-              <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block">Nomor HP</label>
-              <p className="text-xs font-medium text-[var(--color-title)]">{profile.mobile_number}</p>
-            </div>
-            <div>
-              <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block">Kewarganegaraan</label>
-              <p className="text-xs font-medium text-[var(--color-title)]">{profile.kewarganegaraan}</p>
-            </div>
-            <div>
-              <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block">Tanggal Lahir</label>
-              <p className="text-xs font-medium text-[var(--color-title)]">{new Date(profile.tanggal_lahir).toLocaleDateString()}</p>
+    <div className="p-6 md:p-12 max-w-7xl mx-auto space-y-12 font-sans">
+      {/* Header Welcome Card */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-[var(--primary)] to-[var(--secondary)] rounded-3xl p-10 md:p-14 text-white shadow-2xl shadow-primary/20">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-20 -mt-20 blur-3xl" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-black/10 rounded-full -ml-10 -mb-10 blur-2xl" />
+        
+        <div className="relative flex flex-col md:flex-row justify-between items-start md:items-center gap-10">
+          <div className="space-y-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.3em] opacity-80">Staff Dashboard</p>
+            <h1 className="text-4xl md:text-5xl font-black tracking-tight leading-tight">
+              {profile.salutation} {profile.first_mid_name}
+            </h1>
+            <div className="flex flex-wrap items-center gap-4 text-white/90">
+              <span className="bg-white/20 backdrop-blur-md px-4 py-1.5 rounded-full text-sm font-bold tracking-wide">
+                ID STAF: {profile.id_staf}
+              </span>
+              <span className="text-sm font-medium border-l border-white/30 pl-4">
+                Petugas {profile.nama_maskapai} ({profile.kode_maskapai})
+              </span>
             </div>
           </div>
-        </section>
 
-        <section className="mb-10">
-          <h2 className="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-[0.2em] mb-3">Statistik Klaim Miles</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 border-y border-[var(--color-border-light)] py-3 divide-x divide-[var(--color-border-light)]">
-            <div className="px-2">
-              <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block">Maskapai</label>
-              <p className="text-xs font-bold text-[var(--color-primary)] uppercase truncate">{profile.kode_maskapai} - {profile.nama_maskapai}</p>
-            </div>
-            <div className="px-4">
-              <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block">Antrean Global</label>
-              <p className="text-base font-bold text-[var(--color-warning)]">{waiting_count} <span className="text-[8px] opacity-60">Wait</span></p>
-            </div>
-            <div className="px-4">
-              <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block">Disetujui (Anda)</label>
-              <p className="text-base font-bold text-[var(--color-primary)]">{approved_count}</p>
-            </div>
-            <div className="px-4">
-              <label className="text-[9px] font-bold text-[var(--color-text-muted)] uppercase tracking-widest block">Ditolak (Anda)</label>
-              <p className="text-base font-bold text-[var(--color-danger)]">{rejected_count}</p>
+          <div className="flex gap-4 w-full md:w-auto">
+            <div className="flex-1 md:flex-none bg-white/10 backdrop-blur-xl p-6 rounded-3xl border border-white/20 text-center min-w-[150px]">
+              <p className="text-[10px] font-black uppercase tracking-[0.2em] mb-2 opacity-70">Antrean Global</p>
+              <p className="text-4xl font-black text-[var(--color-warning)]">{waiting_count}</p>
+              <p className="text-[10px] font-bold opacity-60 mt-1">MENUNGGU</p>
             </div>
           </div>
-        </section>
+        </div>
+      </div>
 
+      {/* Statistics Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="bg-white border border-[var(--border-light)] p-8 rounded-2xl shadow-sm hover:shadow-md transition-all">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--success-light)] flex items-center justify-center text-[var(--success)]">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg>
+            </div>
+            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">Disetujui (Anda)</p>
+          </div>
+          <p className="text-4xl font-black text-[var(--title)] tracking-tight">{approved_count}</p>
+        </div>
+
+        <div className="bg-white border border-[var(--border-light)] p-8 rounded-2xl shadow-sm hover:shadow-md transition-all">
+          <div className="flex items-center gap-4 mb-4">
+            <div className="w-12 h-12 rounded-2xl bg-[var(--danger-light)] flex items-center justify-center text-[var(--danger)]">
+              <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+            </div>
+            <p className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-widest">Ditolak (Anda)</p>
+          </div>
+          <p className="text-4xl font-black text-[var(--title)] tracking-tight">{rejected_count}</p>
+        </div>
+
+        <div className="bg-[var(--bg-subtle)] border border-[var(--border-light)] p-8 rounded-2xl shadow-sm flex items-center justify-center">
+           <div className="text-center">
+             <p className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-[0.2em] mb-1">Maskapai</p>
+             <p className="text-xl font-black text-[var(--primary)] uppercase">{profile.nama_maskapai}</p>
+           </div>
+        </div>
+      </div>
+
+      {/* Staff Detailed Info */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-black text-[var(--title)] tracking-tight">Detail Profil Petugas</h2>
+          <div className="h-px flex-1 bg-[var(--border-light)] mx-6 hidden md:block" />
+        </div>
+
+        <div className="bg-white rounded-2xl border border-[var(--border-light)] shadow-sm p-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div>
+              <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-2">Email Akun</label>
+              <p className="text-sm font-bold text-[var(--title)]">{session?.user?.email}</p>
+            </div>
+            <div>
+              <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-2">Nomor Mobile</label>
+              <p className="text-sm font-bold text-[var(--title)]">{profile.mobile_number}</p>
+            </div>
+            <div>
+              <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-2">Kewarganegaraan</label>
+              <p className="text-sm font-bold text-[var(--title)]">{profile.kewarganegaraan}</p>
+            </div>
+            <div>
+              <label className="text-[10px] font-black text-[var(--text-muted)] uppercase tracking-widest block mb-2">Tanggal Lahir</label>
+              <p className="text-sm font-bold text-[var(--title)]">{new Date(profile.tanggal_lahir).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -2,26 +2,81 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
+import { useToast } from '@/components/ToastProvider';
 import { DUMMY_PACKAGES } from '@/dummy/package';
 import { DUMMY_MEMBERS } from '@/dummy/member';
 
 export default function PackagePage() {
   const { data: session } = useSession();
+  const { showToast, showConfirm } = useToast();
+  const [packages, setPackages] = useState<any[]>([]);
   const [awardMilesBalance, setAwardMilesBalance] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [isBuying, setIsBuying] = useState(false);
 
-  useEffect(() => {
-    const member = DUMMY_MEMBERS.find(m => m.email === session?.user?.email) || DUMMY_MEMBERS[0];
-    setAwardMilesBalance(member.award_miles);
-  }, [session]);
-  
-  const handleBeli = (pkg: any) => {
-    const confirmMessage = `Apakah Anda yakin ingin membeli paket:\n${pkg.jumlah_award_miles.toLocaleString('id-ID')} Miles seharga Rp ${pkg.harga_paket.toLocaleString('id-ID')}?`;
-    
-    if (confirm(confirmMessage)) {
-      setAwardMilesBalance(prev => prev + pkg.jumlah_award_miles);
-      alert('Pembelian berhasil! Award Miles Anda telah ditambahkan.');
+  const fetchData = async () => {
+    setLoading(true);
+    try {
+      // Fetch Packages
+      const pkgRes = await fetch('/api/member/package');
+      const pkgData = await pkgRes.json();
+      if (pkgRes.ok) setPackages(pkgData);
+
+      // Fetch Profile for Balance
+      const profileRes = await fetch('/api/dashboard/member');
+      const profileData = await profileRes.json();
+      if (profileRes.ok) setAwardMilesBalance(profileData.profile.award_miles);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (session) fetchData();
+  }, [session]);
+  
+  const handleBeli = async (pkg: any) => {
+    const confirmed = await showConfirm({
+      title: 'Konfirmasi Beli Paket',
+      message: `Beli ${pkg.jumlah_award_miles.toLocaleString('id-ID')} Miles seharga Rp ${Number(pkg.harga_paket).toLocaleString('id-ID')}?`,
+      confirmText: 'Beli Sekarang',
+      type: 'success'
+    });
+    
+    if (confirmed) {
+      setIsBuying(true);
+      try {
+        const res = await fetch('/api/member/package', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id_award_miles_package: pkg.id })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) {
+          showToast(data.message || 'Gagal membeli package', 'error');
+          return;
+        }
+
+        showToast(data.message, 'success');
+        fetchData(); // Refresh balance and data
+      } catch (err) {
+        showToast('Terjadi kesalahan jaringan.', 'error');
+      } finally {
+        setIsBuying(false);
+      }
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="max-w-7xl mx-auto p-12 text-center">
+        <p className="text-sm text-text-muted animate-pulse font-bold tracking-widest">MEMUAT PAKET MILES...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-8 md:p-12 font-sans text-title">
@@ -39,7 +94,7 @@ export default function PackagePage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
-        {DUMMY_PACKAGES.map((pkg) => (
+        {packages.map((pkg) => (
           <div key={pkg.id} className="bg-white border border-border-light rounded-lg p-6 flex flex-col justify-between hover:shadow-sm transition-shadow">
             <div>
               <p className="text-[10px] text-text-muted font-mono mb-4">{pkg.id}</p>
@@ -49,13 +104,14 @@ export default function PackagePage() {
             
             <div>
               <p className="text-xs text-text-muted mb-3">Harga Paket</p>
-              <p className="text-lg font-bold text-title mb-5">Rp {pkg.harga_paket.toLocaleString('id-ID')}</p>
+              <p className="text-lg font-bold text-title mb-5">Rp {Number(pkg.harga_paket).toLocaleString('id-ID')}</p>
               
               <button 
                 onClick={() => handleBeli(pkg)}
-                className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-secondary transition-colors"
+                disabled={isBuying}
+                className="w-full bg-primary text-white py-2.5 rounded-lg text-sm font-semibold hover:bg-secondary transition-colors disabled:opacity-50"
               >
-                Beli Sekarang
+                {isBuying ? 'Memproses...' : 'Beli Sekarang'}
               </button>
             </div>
           </div>

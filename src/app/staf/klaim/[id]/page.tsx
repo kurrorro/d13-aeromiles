@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import Link from 'next/link';
+import { useToast } from '@/components/ToastProvider';
 
 const STATUS_STYLE: Record<string, string> = {
   'Menunggu':  'bg-[var(--color-warning-light)] text-[var(--color-warning)]',
@@ -32,6 +33,7 @@ export default function StafKlaimDetailPage() {
   const router = useRouter();
   const params = useParams();
   const { data: session } = useSession();
+  const { showToast } = useToast();
   const id = params.id as string;
 
   const [klaim, setKlaim] = useState<Klaim | null>(null);
@@ -63,7 +65,7 @@ export default function StafKlaimDetailPage() {
   if (!klaim) {
     return (
       <div className="max-w-3xl mx-auto p-10 font-sans text-center">
-        <p className="text-[var(--color-text-muted)]">Klaim tidak ditemukan.</p>
+        <p className="text-[var(--color-text-muted)]">Klaim tidak ditemukan atau Anda tidak memiliki akses ke maskapai ini.</p>
         <Link href="/staf/klaim" className="text-[var(--color-secondary)] hover:underline text-sm mt-4 inline-block">← Kembali</Link>
       </div>
     );
@@ -79,12 +81,22 @@ export default function StafKlaimDetailPage() {
         body: JSON.stringify({ status: newStatus }),
       });
       const data = await res.json();
+      
+      if (!res.ok) {
+        setSubmitError(data.error);
+        showToast(data.error, 'error');
+        setShowConfirmModal(false);
+        return;
+      }
+
       setProcessed(true);
       setFinalStatus(newStatus);
       setSuccessMessage(data.message);
+      showToast(data.message || `Klaim berhasil ${newStatus}`, 'success');
       setShowConfirmModal(false);
     } catch {
       setSubmitError('Terjadi kesalahan jaringan.');
+      showToast('Terjadi kesalahan jaringan.', 'error');
     } finally {
       setIsSubmitting(false);
     }
@@ -182,33 +194,44 @@ export default function StafKlaimDetailPage() {
         </div>
       </div>
 
-      {/* Process Form (only for Menunggu) */}
+      {/* Process Form (only for Menunggu and matching Maskapai) */}
       {currentStatus === 'Menunggu' && !processed && (
-        <div className="bg-white border border-[var(--color-border-light)] rounded-lg p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
-          <h2 className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-5">Proses Klaim</h2>
-          <div className="flex items-center gap-6 mb-6">
-            <label className={`flex items-center gap-3 cursor-pointer p-4 rounded-lg border-2 transition-all ${newStatus === 'Disetujui' ? 'border-[var(--color-success)] bg-[var(--color-success-light)]' : 'border-[var(--color-border-light)] hover:border-[var(--color-border-light)]'}`}>
-              <input type="radio" name="newStatus" value="Disetujui" checked={newStatus === 'Disetujui'} onChange={() => setNewStatus('Disetujui')} className="w-4 h-4" />
-              <div>
-                <p className="font-semibold text-sm text-[var(--color-title)]">Setujui Klaim</p>
-                <p className="text-xs text-[var(--color-text-muted)]">Miles akan ditambahkan ke akun member</p>
+        <>
+          {klaim.maskapai === (session?.user as any)?.kode_maskapai ? (
+            <div className="bg-white border border-[var(--color-border-light)] rounded-lg p-6 shadow-[0_2px_8px_rgba(0,0,0,0.04)]">
+              <h2 className="text-xs font-bold text-[var(--color-text-muted)] uppercase tracking-widest mb-5">Proses Klaim</h2>
+              <div className="flex items-center gap-6 mb-6">
+                <label className={`flex items-center gap-3 cursor-pointer p-4 rounded-lg border-2 transition-all ${newStatus === 'Disetujui' ? 'border-[var(--color-success)] bg-[var(--color-success-light)]' : 'border-[var(--color-border-light)] hover:border-[var(--color-border-light)]'}`}>
+                  <input type="radio" name="newStatus" value="Disetujui" checked={newStatus === 'Disetujui'} onChange={() => setNewStatus('Disetujui')} className="w-4 h-4" />
+                  <div>
+                    <p className="font-semibold text-sm text-[var(--color-title)]">Setujui Klaim</p>
+                    <p className="text-xs text-[var(--color-text-muted)]">Miles akan ditambahkan ke akun member</p>
+                  </div>
+                </label>
+                <label className={`flex items-center gap-3 cursor-pointer p-4 rounded-lg border-2 transition-all ${newStatus === 'Ditolak' ? 'border-[var(--color-danger)] bg-[var(--color-danger-light)]' : 'border-[var(--color-border-light)] hover:border-[var(--color-border-light)]'}`}>
+                  <input type="radio" name="newStatus" value="Ditolak" checked={newStatus === 'Ditolak'} onChange={() => setNewStatus('Ditolak')} className="w-4 h-4" />
+                  <div>
+                    <p className="font-semibold text-sm text-[var(--color-title)]">Tolak Klaim</p>
+                    <p className="text-xs text-[var(--color-text-muted)]">Klaim ditolak, miles tidak ditambahkan</p>
+                  </div>
+                </label>
               </div>
-            </label>
-            <label className={`flex items-center gap-3 cursor-pointer p-4 rounded-lg border-2 transition-all ${newStatus === 'Ditolak' ? 'border-[var(--color-danger)] bg-[var(--color-danger-light)]' : 'border-[var(--color-border-light)] hover:border-[var(--color-border-light)]'}`}>
-              <input type="radio" name="newStatus" value="Ditolak" checked={newStatus === 'Ditolak'} onChange={() => setNewStatus('Ditolak')} className="w-4 h-4" />
-              <div>
-                <p className="font-semibold text-sm text-[var(--color-title)]">Tolak Klaim</p>
-                <p className="text-xs text-[var(--color-text-muted)]">Klaim ditolak, miles tidak ditambahkan</p>
+              <div className="flex gap-3">
+                <button onClick={() => setShowConfirmModal(true)}
+                  className={`px-8 py-2.5 text-sm font-semibold rounded-lg text-white transition-all ${newStatus === 'Disetujui' ? 'bg-[var(--color-success)] hover:opacity-90' : 'bg-[var(--color-danger)] hover:opacity-90'}`}>
+                  {newStatus === 'Disetujui' ? 'Setujui Klaim' : 'Tolak Klaim'}
+                </button>
               </div>
-            </label>
-          </div>
-          <div className="flex gap-3">
-            <button onClick={() => setShowConfirmModal(true)}
-              className={`px-8 py-2.5 text-sm font-semibold rounded-lg text-white transition-all ${newStatus === 'Disetujui' ? 'bg-[var(--color-success)] hover:opacity-90' : 'bg-[var(--color-danger)] hover:opacity-90'}`}>
-              {newStatus === 'Disetujui' ? 'Setujui Klaim' : 'Tolak Klaim'}
-            </button>
-          </div>
-        </div>
+            </div>
+          ) : (
+            <div className="bg-[var(--color-bg-subtle)] border border-[var(--color-border-light)] rounded-lg p-6 text-center">
+              <p className="text-sm font-medium text-[var(--color-text-muted)]">
+                Klaim ini milik maskapai <span className="font-bold text-[var(--color-primary)]">{klaim.nama_maskapai}</span>. 
+                Hanya staf dari maskapai tersebut yang dapat memproses klaim ini.
+              </p>
+            </div>
+          )}
+        </>
       )}
 
       {/* Result after processing */}

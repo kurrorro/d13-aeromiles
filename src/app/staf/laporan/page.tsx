@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useToast } from '@/components/ToastProvider';
 import { 
   DUMMY_LAPORAN_STATISTIK, 
   DUMMY_TRANSAKSI, 
@@ -10,6 +11,7 @@ import {
 } from '@/dummy/laporan';
 
 export default function LaporanPage() {
+  const { showToast, showConfirm } = useToast();
   const [filterTipe, setFilterTipe] = useState('');
   const [searchMember, setSearchMember] = useState('');
   const [filterDari, setFilterDari] = useState('');
@@ -17,13 +19,22 @@ export default function LaporanPage() {
   const [topTab, setTopTab] = useState<'miles' | 'transfer' | 'redeem'>('miles');
   const [transaksiList, setTransaksiList] = useState(DUMMY_TRANSAKSI);
 
-  const handleDelete = (id: string, tipe: string) => {
+  const handleDelete = async (id: string, tipe: string) => {
     if (tipe === 'Klaim Disetujui') {
-      alert('Transaksi Klaim Disetujui tidak dapat dihapus!');
+      showToast('Transaksi Klaim Disetujui tidak dapat dihapus!', 'warning');
       return;
     }
-    if (confirm(`Hapus permanen transaksi ${id}?`)) {
+    
+    const confirmed = await showConfirm({
+      title: 'Hapus Transaksi',
+      message: `Apakah Anda yakin ingin menghapus transaksi ${id}? Tindakan ini permanen.`,
+      confirmText: 'Ya, Hapus',
+      type: 'danger'
+    });
+
+    if (confirmed) {
       setTransaksiList(transaksiList.filter(t => t.id !== id));
+      showToast(`Transaksi ${id} telah dihapus.`, 'success');
     }
   };
 
