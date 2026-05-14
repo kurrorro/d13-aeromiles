@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useToast } from '@/components/ToastProvider';
 
 interface Transaction {
   id: string;
@@ -20,6 +21,7 @@ interface TopMember {
 
 export default function LaporanPage() {
   const { showToast, showConfirm } = useToast();
+
   const [filterTipe, setFilterTipe] = useState('');
   const [searchMember, setSearchMember] = useState('');
   const [filterDari, setFilterDari] = useState('');
@@ -61,25 +63,34 @@ export default function LaporanPage() {
       showToast('Transaksi Klaim Disetujui tidak dapat dihapus!', 'warning');
       return;
     }
-    if (!confirm(`Hapus permanen transaksi ini?`)) return;
 
-    try {
-      const res = await fetch('/api/staf/laporan', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id })
-      });
-      const data = await res.json();
-      if (res.ok) {
-        alert(data.message);
-        fetchLaporan();
-      } else {
-        alert(data.error);
+    const confirmed = await showConfirm({
+      title: 'Hapus Transaksi',
+      message: 'Hapus permanen transaksi ini?',
+      type: 'danger'
+    });
+
+    if (confirmed) {
+      try {
+        const res = await fetch('/api/staf/laporan', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id })
+        });
+        const data = await res.json();
+        if (res.ok) {
+          showToast(data.message, 'success');
+          fetchLaporan();
+        } else {
+          showToast(data.error || 'Gagal menghapus transaksi', 'error');
+        }
+      } catch (error) {
+        showToast('Gagal menghapus transaksi', 'error');
       }
-    } catch (error) {
-      alert('Gagal menghapus transaksi');
     }
   };
+
+
 
   const filteredTransaksi = transactions.filter(t => {
     const matchTipe = filterTipe === '' || t.tipe.toLowerCase().includes(filterTipe.toLowerCase());

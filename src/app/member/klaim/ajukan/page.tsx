@@ -3,7 +3,6 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useToast } from '@/components/ToastProvider';
-import { DUMMY_BANDARA, DUMMY_MASKAPAI } from '@/dummy/bandara';
 
 type BandaraItem = { iata_code: string; nama: string; kota: string };
 type MaskapaiItem = { kode_maskapai: string; nama_maskapai: string };
@@ -29,8 +28,8 @@ export default function AjukanKlaimPage() {
         setMaskapai(d.airlines || []);
       })
       .catch(() => {
-        setBandara(DUMMY_BANDARA);
-        setMaskapai(DUMMY_MASKAPAI);
+        setBandara([]);
+        setMaskapai([]);
       });
   }, []);
 

@@ -2,7 +2,6 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
-import { DUMMY_BANDARA, DUMMY_MASKAPAI } from '@/dummy/bandara';
 
 type BandaraItem = { iata_code: string; nama: string; kota: string };
 type MaskapaiItem = { kode_maskapai: string; nama_maskapai: string };
@@ -33,8 +32,8 @@ export default function EditKlaimPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState('');
-  const [bandara, setBandara] = useState<BandaraItem[]>(DUMMY_BANDARA);
-  const [maskapai, setMaskapai] = useState<MaskapaiItem[]>(DUMMY_MASKAPAI);
+  const [bandara, setBandara] = useState<BandaraItem[]>([]);
+  const [maskapai, setMaskapai] = useState<MaskapaiItem[]>([]);
 
   // Load klaim data
   useEffect(() => {
@@ -66,8 +65,8 @@ export default function EditKlaimPage() {
         setMaskapai(d.airlines || []);
       })
       .catch(() => {
-        setBandara(DUMMY_BANDARA);
-        setMaskapai(DUMMY_MASKAPAI);
+        setBandara([]);
+        setMaskapai([]);
       });
   }, []);
 

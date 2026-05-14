@@ -3,8 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useToast } from '@/components/ToastProvider';
-import { DUMMY_PACKAGES } from '@/dummy/package';
-import { DUMMY_MEMBERS } from '@/dummy/member';
 
 export default function PackagePage() {
   const { data: session } = useSession();
