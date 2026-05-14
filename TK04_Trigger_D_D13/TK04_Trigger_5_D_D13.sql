@@ -1,3 +1,4 @@
+SET search_path TO AEROMILES; 
 CREATE OR REPLACE FUNCTION fn_sinkronisasi_miles_klaim()
 RETURNS TRIGGER AS $$
 BEGIN

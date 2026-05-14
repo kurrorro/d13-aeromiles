@@ -1,3 +1,4 @@
+SET search_path TO AEROMILES; 
 CREATE OR REPLACE FUNCTION cek_dan_catat_transfer_miles()
 RETURNS TRIGGER AS $$
 DECLARE
