@@ -30,7 +30,6 @@ DECLARE
     v_top_email TEXT;
     v_top_miles BIGINT;
 BEGIN
-    -- Ambil peringkat 1 untuk pesan notice
     SELECT m.email, m.total_miles
     INTO v_top_email, v_top_miles
     FROM MEMBER m
