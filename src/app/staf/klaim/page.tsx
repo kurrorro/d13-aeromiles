@@ -1,6 +1,8 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 
 const STATUS_STYLE: Record<string, string> = {
   'Menunggu':  'bg-[var(--color-warning-light)] text-[var(--color-warning)]',
@@ -30,6 +32,8 @@ type Klaim = {
 };
 
 export default function StafKlaimPage() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
   const [klaim, setKlaim] = useState<Klaim[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterStatus, setFilterStatus] = useState('');
@@ -58,8 +62,16 @@ export default function StafKlaimPage() {
   };
 
   useEffect(() => {
-    fetchKlaim();
-  }, [filterStatus, filterMaskapai, filterTanggalDari, filterTanggalSampai]);
+    if (status === 'authenticated' && session?.user?.role !== 'staf') {
+      router.push('/member/dashboard');
+    }
+  }, [status, session, router]);
+
+  useEffect(() => {
+    if (status === 'authenticated' && session?.user?.role === 'staf') {
+      fetchKlaim();
+    }
+  }, [status, session, filterStatus, filterMaskapai, filterTanggalDari, filterTanggalSampai]);
 
   const maskapaiList = Array.from(new Set(klaim.map(k => k.maskapai))).filter(Boolean);
   const filtered = klaim; // Already filtered by server
@@ -164,7 +176,7 @@ export default function StafKlaimPage() {
                     </span>
                   </td>
                   <td className="py-4 px-5 text-right">
-                    {k.status_penerimaan === 'Menunggu' ? (
+                    {k.status_penerimaan === 'Menunggu' && k.maskapai === (session?.user as any)?.kode_maskapai ? (
                       <Link href={`/staf/klaim/${k.id}`}
                         className="text-xs font-semibold text-white bg-[var(--color-primary)] hover:bg-[var(--color-secondary)] px-3 py-1.5 rounded-lg transition-colors">
                         Proses

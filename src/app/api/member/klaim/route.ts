@@ -41,8 +41,9 @@ export async function POST(req: NextRequest) {
   } = body;
 
   try {
+    // Explicitly target the aeromiles schema to ensure it lands in the right place
     const res = await pool.query(`
-      INSERT INTO CLAIM_MISSING_MILES (
+      INSERT INTO aeromiles.CLAIM_MISSING_MILES (
         email_member, maskapai, bandara_asal, bandara_tujuan, 
         tanggal_penerbangan, flight_number, nomor_tiket, 
         kelas_kabin, pnr, status_penerimaan, timestamp
@@ -54,10 +55,13 @@ export async function POST(req: NextRequest) {
       kelas_kabin, pnr
     ]);
 
-    return NextResponse.json(res.rows[0]);
+    if (res.rows.length > 0) {
+      return NextResponse.json(res.rows[0]);
+    } else {
+      throw new Error('Gagal menyimpan klaim ke database.');
+    }
   } catch (error: any) {
-    console.error('Create Claim Error:', error);
-    // Return message from trigger/DB if available
+    console.error('Create Claim Error Details:', error);
     const message = error.message || 'Internal Server Error';
     return NextResponse.json({ error: message }, { status: 400 });
   }

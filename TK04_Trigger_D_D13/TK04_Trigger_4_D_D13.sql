@@ -1,9 +1,5 @@
 SET search_path TO AEROMILES;
 
--- ============================================================
--- Trigger 4.1: Pemeriksaan Status Klaim Missing Miles yang Duplikat
--- ============================================================
-
 CREATE OR REPLACE FUNCTION check_duplicate_claim()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -27,11 +23,6 @@ BEFORE INSERT ON CLAIM_MISSING_MILES
 FOR EACH ROW
 EXECUTE FUNCTION check_duplicate_claim();
 
-
--- ============================================================
--- Trigger 4.2: Pembaruan Tier Member secara Otomatis
--- ============================================================
-
 CREATE OR REPLACE FUNCTION update_member_tier()
 RETURNS TRIGGER AS $$
 DECLARE
@@ -40,13 +31,11 @@ DECLARE
     new_tier_nama VARCHAR(50);
     old_tier_nama VARCHAR(50);
 BEGIN
-    -- 1. Hitung frekuensi terbang (jumlah klaim yang disetujui)
     SELECT COUNT(*) INTO current_freq
     FROM CLAIM_MISSING_MILES
     WHERE email_member = NEW.email 
       AND status_penerimaan = 'Disetujui';
 
-    -- 2. Cari tier tertinggi yang memenuhi kriteria miles DAN frekuensi
     SELECT id_tier, nama INTO new_tier_id, new_tier_nama
     FROM TIER
     WHERE NEW.total_miles >= minimal_tier_miles
@@ -54,12 +43,9 @@ BEGIN
     ORDER BY minimal_tier_miles DESC, minimal_frekuensi_terbang DESC
     LIMIT 1;
 
-    -- 3. Jika tier berubah, lakukan update dan tampilkan pesan
-    IF (NEW.id_tier IS DISTINCT FROM new_tier_id) THEN
-        -- Ambil nama tier lama untuk pesan
+    IF new_tier_id IS NOT NULL AND (NEW.id_tier IS DISTINCT FROM new_tier_id) THEN
         SELECT nama INTO old_tier_nama FROM TIER WHERE id_tier = OLD.id_tier;
         
-        -- Update id_tier pada record NEW
         NEW.id_tier := new_tier_id;
         
         RAISE NOTICE 'SUKSES: Tier Member "%" telah diperbarui dari "%" menjadi "%" berdasarkan total miles yang dimiliki.', 

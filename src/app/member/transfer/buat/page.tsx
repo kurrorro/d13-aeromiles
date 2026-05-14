@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useToast } from '@/components/ToastProvider';
 
 type MemberInfo = {
   email: string;
@@ -15,6 +16,7 @@ type MemberInfo = {
 
 export default function BuatTransferPage() {
   const { data: session } = useSession();
+  const { showToast } = useToast();
   const router = useRouter();
   const email = session?.user?.email ?? '';
 
@@ -87,8 +89,6 @@ export default function BuatTransferPage() {
       newErrors.jumlah = 'Jumlah miles wajib diisi';
     } else if (isNaN(jumlahNum) || jumlahNum <= 0) {
       newErrors.jumlah = 'Jumlah miles harus lebih dari 0';
-    } else if (jumlahNum > awardMiles) {
-      newErrors.jumlah = `Saldo tidak mencukupi. Saldo Anda: ${awardMiles.toLocaleString('id-ID')}`;
     }
     return newErrors;
   };
@@ -116,12 +116,16 @@ export default function BuatTransferPage() {
       if (!res.ok) {
         const data = await res.json();
         setSubmitError(data.error || 'Gagal melakukan transfer');
+        showToast(data.error || 'Gagal melakukan transfer', 'error');
         setStep('form');
         return;
       }
-      router.push('/member/dashboard');
+      const data = await res.json();
+      showToast(data.message || 'Transfer berhasil!', 'success');
+      router.push('/member/transfer');
     } catch {
       setSubmitError('Terjadi kesalahan jaringan. Coba lagi.');
+      showToast('Terjadi kesalahan jaringan.', 'error');
       setStep('form');
     } finally {
       setIsSubmitting(false);

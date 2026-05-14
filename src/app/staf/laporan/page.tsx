@@ -19,6 +19,7 @@ interface TopMember {
 }
 
 export default function LaporanPage() {
+  const { showToast, showConfirm } = useToast();
   const [filterTipe, setFilterTipe] = useState('');
   const [searchMember, setSearchMember] = useState('');
   const [filterDari, setFilterDari] = useState('');
@@ -57,7 +58,7 @@ export default function LaporanPage() {
 
   const handleDelete = async (id: string, tipe: string) => {
     if (tipe === 'Klaim Disetujui') {
-      alert('Transaksi Klaim Disetujui tidak dapat dihapus!');
+      showToast('Transaksi Klaim Disetujui tidak dapat dihapus!', 'warning');
       return;
     }
     if (!confirm(`Hapus permanen transaksi ini?`)) return;

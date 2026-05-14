@@ -1,3 +1,4 @@
+SET search_path TO AEROMILES;
 
 CREATE OR REPLACE FUNCTION update_miles_after_claim_approval()
 RETURNS TRIGGER AS $$
