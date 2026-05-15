@@ -21,7 +21,7 @@ export async function GET(req: NextRequest) {
     `);
 
 
-        const top5Res = await pool.query(`SELECT * FROM get_top_5_members()`);
+        const top5Res = await pool.query(`SELECT * FROM aeromiles.fn_top5_member_by_miles()`);
 
         const transactionsRes = await pool.query(`
         SELECT 'Transfer' AS tipe, 
