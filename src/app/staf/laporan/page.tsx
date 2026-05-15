@@ -1,13 +1,32 @@
 'use client';
 
-import { useState } from 'react';
-import { 
-  DUMMY_LAPORAN_STATISTIK, 
-  DUMMY_TRANSAKSI, 
-  DUMMY_TOP_MEMBER_MILES,
-  DUMMY_TOP_MEMBER_TRANSFER,
-  DUMMY_TOP_MEMBER_REDEEM
-} from '@/dummy/laporan';
+import { useState, useEffect, useCallback } from 'react';
+
+interface Transaksi {
+  tipe: string;
+  nama_member: string;
+  email_member: string;
+  miles: number;
+  timestamp: string;
+  ref_1: string;
+  ref_2: string;
+  ref_ts: string;
+}
+
+interface Stats {
+  total_miles_beredar: number;
+  redeem_bulan_ini: number;
+  total_klaim_disetujui: number;
+}
+
+interface TopMember {
+  peringkat?: number;
+  email: string;
+  nama: string;
+  nama_lengkap?: string;
+  total_miles: number;
+  frekuensi?: number;
+}
 
 export default function LaporanPage() {
   const [filterTipe, setFilterTipe] = useState('');
@@ -15,26 +34,100 @@ export default function LaporanPage() {
   const [filterDari, setFilterDari] = useState('');
   const [filterSampai, setFilterSampai] = useState('');
   const [topTab, setTopTab] = useState<'miles' | 'transfer' | 'redeem'>('miles');
-  const [transaksiList, setTransaksiList] = useState(DUMMY_TRANSAKSI);
+  
+  const [transaksiList, setTransaksiList] = useState<Transaksi[]>([]);
+  const [stats, setStats] = useState<Stats | null>(null);
+  const [topMembers, setTopMembers] = useState<TopMember[]>([]);
+  const [noticeMessage, setNoticeMessage] = useState('');
+  const [loading, setLoading] = useState(true);
 
-  const handleDelete = (id: string, tipe: string) => {
-    if (tipe === 'Klaim Disetujui') {
-      alert('Transaksi Klaim Disetujui tidak dapat dihapus!');
-      return;
+  const fetchTransactions = useCallback(async () => {
+    try {
+      const params = new URLSearchParams();
+      if (filterTipe) params.append('tipe', filterTipe);
+      if (searchMember) params.append('email', searchMember);
+      if (filterDari) params.append('startDate', filterDari);
+      if (filterSampai) params.append('endDate', filterSampai);
+
+      const res = await fetch(`/api/staf/laporan/transactions?${params.toString()}`);
+      const data = await res.json();
+      setTransaksiList(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Failed to fetch transactions:', error);
     }
-    if (confirm(`Hapus permanen transaksi ${id}?`)) {
-      setTransaksiList(transaksiList.filter(t => t.id !== id));
+  }, [filterTipe, searchMember, filterDari, filterSampai]);
+
+  const fetchStats = async () => {
+    try {
+      const res = await fetch('/api/staf/laporan/stats');
+      const data = await res.json();
+      setStats(data);
+    } catch (error) {
+      console.error('Failed to fetch stats:', error);
     }
   };
 
-  const filteredTransaksi = transaksiList.filter(t => {
-    const matchTipe = filterTipe === '' || t.tipe.toLowerCase().includes(filterTipe.toLowerCase());
-    const matchMember = searchMember === '' || t.member.toLowerCase().includes(searchMember.toLowerCase());
-    const tDate = new Date(t.timestamp);
-    const matchDari = filterDari === '' || tDate >= new Date(filterDari);
-    const matchSampai = filterSampai === '' || tDate <= new Date(filterSampai + 'T23:59:59');
-    return matchTipe && matchMember && matchDari && matchSampai;
-  });
+  const fetchTopMembers = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/staf/laporan/top?category=${topTab}`);
+      const result = await res.json();
+      setTopMembers(result.data || []);
+      if (topTab === 'miles' && result.message) {
+        setNoticeMessage(result.message);
+      } else {
+        setNoticeMessage('');
+      }
+    } catch (error) {
+      console.error('Failed to fetch top members:', error);
+    }
+  }, [topTab]);
+
+  useEffect(() => {
+    const init = async () => {
+      setLoading(true);
+      await Promise.all([fetchTransactions(), fetchStats(), fetchTopMembers()]);
+      setLoading(false);
+    };
+    init();
+  }, [fetchTransactions, fetchTopMembers]);
+
+  const handleDelete = async (t: Transaksi) => {
+    if (t.tipe === 'Klaim Disetujui') {
+      alert('Transaksi Klaim Disetujui tidak dapat dihapus!');
+      return;
+    }
+    
+    if (confirm(`Hapus permanen transaksi ${t.tipe} untuk member ${t.email_member}?`)) {
+      try {
+        const res = await fetch('/api/staf/laporan/transaction', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tipe: t.tipe,
+            email: t.email_member,
+            ref_1: t.ref_1,
+            ref_2: t.ref_2,
+            timestamp: t.ref_ts
+          })
+        });
+        
+        const result = await res.json();
+        if (result.success) {
+          alert(result.message);
+          fetchTransactions();
+          fetchStats(); // Stats might change
+        } else {
+          alert('Gagal menghapus: ' + result.error);
+        }
+      } catch (error) {
+        alert('Terjadi kesalahan saat menghapus transaksi.');
+      }
+    }
+  };
+
+  if (loading && transaksiList.length === 0) {
+    return <div className="flex justify-center items-center min-h-screen text-title font-bold">Memuat Data Laporan...</div>;
+  }
 
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8 font-sans text-title">
@@ -49,15 +142,15 @@ export default function LaporanPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
         <div className="bg-white border-l-4 border-secondary rounded-lg p-6 shadow-sm">
           <p className="text-[10px] uppercase tracking-widest text-text-muted mb-2 font-bold">Total Miles Beredar</p>
-          <p className="text-3xl font-bold text-title">{DUMMY_LAPORAN_STATISTIK.totalMilesBeredar.toLocaleString('id-ID')}</p>
+          <p className="text-3xl font-bold text-title">{stats?.total_miles_beredar?.toLocaleString('id-ID') || 0}</p>
         </div>
         <div className="bg-white border-l-4 border-secondary rounded-lg p-6 shadow-sm">
           <p className="text-[10px] uppercase tracking-widest text-text-muted mb-2 font-bold">Total Redeem Bulan Ini</p>
-          <p className="text-3xl font-bold text-title">{DUMMY_LAPORAN_STATISTIK.totalRedeemBulanIni.toLocaleString('id-ID')}</p>
+          <p className="text-3xl font-bold text-title">{stats?.redeem_bulan_ini?.toLocaleString('id-ID') || 0}</p>
         </div>
         <div className="bg-white border-l-4 border-secondary rounded-lg p-6 shadow-sm">
           <p className="text-[10px] uppercase tracking-widest text-text-muted mb-2 font-bold">Total Klaim Disetujui</p>
-          <p className="text-3xl font-bold text-title">{DUMMY_LAPORAN_STATISTIK.totalKlaimDisetujui.toLocaleString('id-ID')}</p>
+          <p className="text-3xl font-bold text-title">{stats?.total_klaim_disetujui?.toLocaleString('id-ID') || 0}</p>
         </div>
       </div>
 
@@ -67,7 +160,7 @@ export default function LaporanPage() {
           <div className="flex flex-wrap gap-3 mb-4">
             <input 
               type="text" 
-              placeholder="Cari Member..."
+              placeholder="Cari Email Member..."
               value={searchMember}
               onChange={(e) => setSearchMember(e.target.value)}
               className="flex-1 min-w-[160px] px-4 py-2 border border-border-light rounded-lg text-sm focus:outline-none focus:border-secondary bg-white"
@@ -77,10 +170,10 @@ export default function LaporanPage() {
               onChange={(e) => setFilterTipe(e.target.value)}
               className="px-4 py-2 border border-border-light rounded-lg text-sm focus:outline-none focus:border-secondary bg-white text-title"
             >
-              <option value="">Semua Tipe Transaksi</option>
-              <option value="Klaim">Klaim</option>
-              <option value="Redeem">Redeem Hadiah</option>
-              <option value="Package">Pembelian Package</option>
+              <option value="">Semua Tipe</option>
+              <option value="Klaim Disetujui">Klaim</option>
+              <option value="Redeem">Redeem</option>
+              <option value="Pembelian Package">Package</option>
               <option value="Transfer">Transfer</option>
             </select>
             <div className="flex items-center gap-2">
@@ -122,17 +215,20 @@ export default function LaporanPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-border-light">
-                {filteredTransaksi.map(t => (
-                  <tr key={t.id} className="hover:bg-bg-subtle transition-colors">
+                {transaksiList.map((t, idx) => (
+                  <tr key={`${t.ref_ts}-${idx}`} className="hover:bg-bg-subtle transition-colors">
                     <td className="py-4 px-4 text-sm font-semibold text-title">{t.tipe}</td>
-                    <td className="py-4 px-4 text-xs text-text-muted">{t.member}</td>
-                    <td className={`py-4 px-4 text-right text-sm font-bold ${t.jumlah > 0 ? 'text-secondary' : 'text-danger'}`}>
-                      {t.jumlah > 0 ? '+' : ''}{t.jumlah.toLocaleString('id-ID')}
+                    <td className="py-4 px-4">
+                      <p className="text-[11px] font-bold text-title">{t.nama_member}</p>
+                      <p className="text-[10px] text-text-muted">{t.email_member}</p>
                     </td>
-                    <td className="py-4 px-4 text-[11px] text-text-muted">{t.timestamp}</td>
+                    <td className={`py-4 px-4 text-right text-sm font-bold ${t.miles > 0 ? 'text-secondary' : 'text-danger'}`}>
+                      {t.miles > 0 ? '+' : ''}{t.miles.toLocaleString('id-ID')}
+                    </td>
+                    <td className="py-4 px-4 text-[11px] text-text-muted">{new Date(t.timestamp).toLocaleString('id-ID')}</td>
                     <td className="py-4 px-4 text-right">
                       <button 
-                        onClick={() => handleDelete(t.id, t.tipe)}
+                        onClick={() => handleDelete(t)}
                         disabled={t.tipe === 'Klaim Disetujui'}
                         className={t.tipe === 'Klaim Disetujui' ? 'text-[var(--color-border-light)] cursor-not-allowed' : 'text-[var(--color-danger)] hover:opacity-70 transition-opacity'}
                         title="Hapus"
@@ -144,6 +240,11 @@ export default function LaporanPage() {
                     </td>
                   </tr>
                 ))}
+                {transaksiList.length === 0 && (
+                  <tr>
+                    <td colSpan={5} className="py-10 text-center text-text-muted text-sm italic">Tidak ada transaksi yang ditemukan.</td>
+                  </tr>
+                )}
               </tbody>
             </table>
           </div>
@@ -154,51 +255,41 @@ export default function LaporanPage() {
             <h2 className="text-sm font-bold tracking-wider uppercase text-title">Top Member</h2>
           </div>
           
-          <div className="flex border-b border-border-light text-xs font-semibold text-text-muted">
-            <button onClick={() => setTopTab('miles')} className={`flex-1 py-3 transition-colors cursor-pointer ${topTab === 'miles' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Total Miles</button>
-            <button onClick={() => setTopTab('transfer')} className={`flex-1 py-3 transition-colors cursor-pointer ${topTab === 'transfer' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Transfer</button>
-            <button onClick={() => setTopTab('redeem')} className={`flex-1 py-3 transition-colors cursor-pointer ${topTab === 'redeem' ? 'text-primary border-b-2 border-secondary' : 'hover:text-primary'}`}>Redeem</button>
+          <div className="flex border-b border-border-light text-[10px] font-bold text-text-muted uppercase tracking-widest">
+            <button onClick={() => setTopTab('miles')} className={`flex-1 py-4 transition-colors cursor-pointer ${topTab === 'miles' ? 'text-secondary border-b-2 border-secondary bg-white' : 'hover:text-title hover:bg-bg-subtle'}`}>Miles</button>
+            <button onClick={() => setTopTab('transfer')} className={`flex-1 py-4 transition-colors cursor-pointer ${topTab === 'transfer' ? 'text-secondary border-b-2 border-secondary bg-white' : 'hover:text-title hover:bg-bg-subtle'}`}>Transfer</button>
+            <button onClick={() => setTopTab('redeem')} className={`flex-1 py-4 transition-colors cursor-pointer ${topTab === 'redeem' ? 'text-secondary border-b-2 border-secondary bg-white' : 'hover:text-title hover:bg-bg-subtle'}`}>Redeem</button>
           </div>
 
           <div className="p-5 flex flex-col gap-4">
-            {topTab === 'miles' && DUMMY_TOP_MEMBER_MILES.map(m => (
-              <div key={m.nomor_member} className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <span className="text-lg font-bold text-border-light w-4">{m.peringkat}</span>
-                  <div>
-                    <p className="text-sm font-bold text-title">{m.nama}</p>
-                    <p className="text-[10px] text-text-muted font-mono">{m.nomor_member}</p>
-                  </div>
-                </div>
-                <p className="text-sm font-bold text-secondary">{m.total_miles.toLocaleString('id-ID')}</p>
+            {topTab === 'miles' && noticeMessage && (
+              <div className="bg-secondary/5 border border-secondary/20 rounded p-3 mb-2">
+                <p className="text-[10px] text-secondary font-bold leading-relaxed">{noticeMessage}</p>
               </div>
-            ))}
+            )}
 
-            {topTab === 'transfer' && DUMMY_TOP_MEMBER_TRANSFER.map(m => (
-              <div key={m.nomor_member} className="flex justify-between items-center">
+            {topMembers.map((m, idx) => (
+              <div key={m.email} className="flex justify-between items-center group">
                 <div className="flex items-center gap-3">
-                  <span className="text-lg font-bold text-border-light w-4">{m.peringkat}</span>
+                  <span className="text-lg font-black text-border-light w-4 group-hover:text-secondary transition-colors">{idx + 1}</span>
                   <div>
-                    <p className="text-sm font-bold text-title">{m.nama}</p>
-                    <p className="text-[10px] text-text-muted font-mono">{m.nomor_member}</p>
+                    <p className="text-sm font-bold text-title">{m.nama || m.nama_lengkap}</p>
+                    <p className="text-[10px] text-text-muted font-mono">{m.email}</p>
                   </div>
                 </div>
-                <p className="text-sm font-bold text-title">{m.frekuensi}x</p>
-              </div>
-            ))}
-
-            {topTab === 'redeem' && DUMMY_TOP_MEMBER_REDEEM.map(m => (
-              <div key={m.nomor_member} className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <span className="text-lg font-bold text-border-light w-4">{m.peringkat}</span>
-                  <div>
-                    <p className="text-sm font-bold text-title">{m.nama}</p>
-                    <p className="text-[10px] text-text-muted font-mono">{m.nomor_member}</p>
-                  </div>
+                <div className="text-right">
+                  <p className={`text-sm font-black ${topTab === 'miles' ? 'text-secondary' : 'text-title'}`}>
+                    {topTab === 'miles' ? m.total_miles?.toLocaleString('id-ID') : `${m.frekuensi}x`}
+                  </p>
+                  {topTab !== 'miles' && m.total_miles > 0 && (
+                     <p className="text-[9px] font-bold text-text-muted uppercase tracking-tight">{m.total_miles?.toLocaleString('id-ID')} MILES</p>
+                  )}
                 </div>
-                <p className="text-sm font-bold text-title">{m.frekuensi}x</p>
               </div>
             ))}
+            {topMembers.length === 0 && (
+              <p className="text-center text-text-muted text-xs italic py-4">Belum ada data.</p>
+            )}
           </div>
         </div>
 
