@@ -1,40 +1,24 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import pool from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { DUMMY_TRANSFER } from '@/dummy/transfer';
-import { DUMMY_MEMBERS } from '@/dummy/member';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const res = await pool.query(`
+      SELECT t.*, p1.first_mid_name as nama_1, p2.first_mid_name as nama_2
+      FROM aeromiles.TRANSFER t
+      JOIN aeromiles.PENGGUNA p1 ON t.email_member_1 = p1.email
+      JOIN aeromiles.PENGGUNA p2 ON t.email_member_2 = p2.email
+      WHERE t.email_member_1 = $1 OR t.email_member_2 = $1
+      ORDER BY t.timestamp DESC
+    `, [session.user.email]);
 
-    const memberTransfers = DUMMY_TRANSFER.filter(
-      t => t.email_member_1 === session.user.email || t.email_member_2 === session.user.email
-    );
-    return NextResponse.json(memberTransfers);
+    return NextResponse.json(res.rows);
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
-  }
-}
-
-export async function POST(req: Request) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-
-    const { email_penerima, jumlah } = await req.json();
-    
-    const sender = DUMMY_MEMBERS.find(m => m.email === session.user.email);
-    if (!sender) return NextResponse.json({ error: 'Member tidak ditemukan' }, { status: 404 });
-
-    if (sender.award_miles < jumlah) {
-      return NextResponse.json({ error: 'Saldo award miles tidak mencukupi' }, { status: 400 });
-    }
-
-    // Mock success
-    return NextResponse.json({ success: true, message: 'Transfer berhasil' }, { status: 201 });
-  } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Database error' }, { status: 500 });
   }
 }

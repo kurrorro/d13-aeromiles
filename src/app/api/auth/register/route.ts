@@ -14,22 +14,20 @@ export async function POST(request: Request) {
   try {
     await client.query('BEGIN');
 
-    const checkEmail = await client.query('SELECT email FROM PENGGUNA WHERE email = $1', [email]);
+    const checkEmail = await client.query('SELECT email FROM aeromiles.PENGGUNA WHERE LOWER(email) = LOWER($1)', [email]);
     if (checkEmail.rows.length > 0) {
       await client.query('ROLLBACK');
-      return NextResponse.json({ error: 'Email sudah terdaftar' }, { status: 409 });
+      return NextResponse.json({ error: `Email "${email}" sudah terdaftar, silakan gunakan email lain.` }, { status: 409 });
     }
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
     await client.query(
-      `INSERT INTO PENGGUNA (email, password, salutation, first_mid_name, last_name, country_code, mobile_number, tanggal_lahir, kewarganegaraan)
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [email, hashedPassword, salutation, namaDepan, namaBelakang, countryCode, nomorHp, tanggalLahir, kewarganegaraan]
+      `INSERT INTO aeromiles.PENGGUNA (email, password, salutation, first_mid_name, last_name, country_code, mobile_number, tanggal_lahir, kewarganegaraan)
+       VALUES ($1, extensions.crypt($2, extensions.gen_salt('bf')), $3, $4, $5, $6, $7, $8, $9)`,
+      [email, password, salutation, namaDepan, namaBelakang, countryCode, nomorHp, tanggalLahir, kewarganegaraan]
     );
 
     if (role === 'member') {
-      const lastMember = await client.query('SELECT nomor_member FROM MEMBER ORDER BY nomor_member DESC LIMIT 1');
+      const lastMember = await client.query('SELECT nomor_member FROM aeromiles.MEMBER ORDER BY nomor_member DESC LIMIT 1');
       let newNomorMember = 'M0001';
       if (lastMember.rows.length > 0 && lastMember.rows[0].nomor_member) {
         const lastNum = parseInt(lastMember.rows[0].nomor_member.substring(1));
@@ -38,11 +36,11 @@ export async function POST(request: Request) {
         }
       }
 
-      const lowestTier = await client.query('SELECT id_tier FROM TIER ORDER BY minimal_tier_miles ASC LIMIT 1');
+      const lowestTier = await client.query('SELECT id_tier FROM aeromiles.TIER ORDER BY minimal_tier_miles ASC LIMIT 1');
       const idTier = lowestTier.rows.length > 0 ? lowestTier.rows[0].id_tier : 1;
 
       await client.query(
-        `INSERT INTO MEMBER (email, nomor_member, tanggal_bergabung, id_tier)
+        `INSERT INTO aeromiles.MEMBER (email, nomor_member, tanggal_bergabung, id_tier)
          VALUES ($1, $2, CURRENT_DATE, $3)`,
         [email, newNomorMember, idTier]
       );
@@ -52,7 +50,7 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Kode Maskapai wajib diisi untuk Staf' }, { status: 400 });
       }
 
-      const lastStaf = await client.query('SELECT id_staf FROM STAF ORDER BY id_staf DESC LIMIT 1');
+      const lastStaf = await client.query('SELECT id_staf FROM aeromiles.STAF ORDER BY id_staf DESC LIMIT 1');
       let newIdStaf = 'S0001';
       if (lastStaf.rows.length > 0 && lastStaf.rows[0].id_staf) {
         const lastNum = parseInt(lastStaf.rows[0].id_staf.substring(1));
@@ -62,7 +60,7 @@ export async function POST(request: Request) {
       }
 
       await client.query(
-        `INSERT INTO STAF (email, id_staf, kode_maskapai)
+        `INSERT INTO aeromiles.STAF (email, id_staf, kode_maskapai)
          VALUES ($1, $2, $3)`,
         [email, newIdStaf, kodeMaskapai]
       );

@@ -79,17 +79,15 @@ export async function PUT(request: Request) {
     if (data.action === 'UPDATE_PASSWORD') {
       const { oldPassword, newPassword } = data;
       
-      const userRes = await client.query('SELECT password FROM PENGGUNA WHERE email = $1', [email]);
+      const userRes = await client.query('SELECT (password = crypt($1, password)) as is_match FROM aeromiles.PENGGUNA WHERE email = $2', [oldPassword, email]);
       if (userRes.rows.length === 0) throw new Error('User not found');
       
-      const isMatch = await bcrypt.compare(oldPassword, userRes.rows[0].password);
-      if (!isMatch) {
+      if (!userRes.rows[0].is_match) {
          await client.query('ROLLBACK');
          return NextResponse.json({ error: 'Password lama salah' }, { status: 400 });
       }
 
-      const hashedNewPassword = await bcrypt.hash(newPassword, 10);
-      await client.query('UPDATE PENGGUNA SET password = $1 WHERE email = $2', [hashedNewPassword, email]);
+      await client.query('UPDATE aeromiles.PENGGUNA SET password = crypt($1, gen_salt(\'bf\')) WHERE email = $2', [newPassword, email]);
 
     } else {
       const { salutation, first_mid_name, last_name, country_code, mobile_number, tanggal_lahir, kewarganegaraan, kode_maskapai } = data;

@@ -40,17 +40,15 @@ export default function RedeemPage() {
       const dataKatalog = await resKatalog.json();
       setKatalog(Array.isArray(dataKatalog) ? dataKatalog : []);
 
+      // Fetch Riwayat Redeem Lengkap
+      const resRiwayat = await fetch('/api/member/redeem/history');
+      const dataRiwayat = await resRiwayat.json();
+      setRiwayat(Array.isArray(dataRiwayat) ? dataRiwayat : []);
+
       // Fetch Profile for Balance (from dashboard API)
       const resProfile = await fetch('/api/dashboard/member');
       const dataProfile = await resProfile.json();
       setAwardMilesBalance(dataProfile?.profile?.award_miles ?? 0);
-      setRiwayat(dataProfile?.transactions?.filter((t: any) => t.tipe === 'Redeem')
-        .map((t: any) => ({
-          kode_hadiah: '-', // Dashboard API doesn't provide the code directly, just the name
-          nama_hadiah: t.keterangan,
-          timestamp: t.timestamp,
-          miles: Math.abs(t.amount)
-        })) ?? []);
       
     } catch (error) {
       console.error('Failed to fetch data', error);

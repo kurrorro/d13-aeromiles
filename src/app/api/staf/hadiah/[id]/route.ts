@@ -3,7 +3,6 @@ import pool from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-// GET: Single Hadiah Detail
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {
@@ -19,7 +18,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-// PUT: Update Hadiah
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {
@@ -41,7 +39,6 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-// DELETE: Hapus Hadiah (Hanya jika sudah expired)
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   const session = await getServerSession(authOptions);
   if (!session || session.user?.role !== 'staf') {
@@ -49,7 +46,6 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
   }
 
   try {
-    // Cek dulu apakah expired
     const checkRes = await pool.query(`SELECT program_end FROM HADIAH WHERE kode_hadiah = $1`, [params.id]);
     if (checkRes.rows.length === 0) return NextResponse.json({ error: 'Not Found' }, { status: 404 });
 

@@ -57,6 +57,7 @@ export default function LaporanPage() {
         setStats(data.stats);
         setTopMembers(data.topMembers);
         setTransactions(data.transactions);
+        if (data.message) showToast(data.message, 'success');
       }
       
       if (resTransfer.ok) {

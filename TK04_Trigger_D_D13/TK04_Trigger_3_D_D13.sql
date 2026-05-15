@@ -48,7 +48,6 @@ BEGIN
             total_miles = total_miles + v_miles_per_package
         WHERE email = NEW.email_member;
         
-        -- Notifikasi Sukses
         RAISE NOTICE 'SUKSES: Pembelian package berhasil. Award miles dan total miles Anda bertambah % miles.', 
             v_miles_per_package;
     END IF;

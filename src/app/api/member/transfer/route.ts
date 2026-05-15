@@ -40,7 +40,6 @@ export async function POST(req: NextRequest) {
   } catch (error: any) {
     console.error('Transfer Error Details:', error);
     const message = error.message || 'Internal Server Error';
-    // If it's a RAISE EXCEPTION, the message will contain the error string from SQL.
     return NextResponse.json({ error: message }, { status: 400 });
   } finally {
     client.release();

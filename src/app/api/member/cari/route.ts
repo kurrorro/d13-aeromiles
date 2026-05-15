@@ -1,23 +1,28 @@
-import { NextResponse } from 'next/server';
-import { DUMMY_MEMBERS } from '@/dummy/member';
+import { NextRequest, NextResponse } from 'next/server';
+import pool from '@/lib/db';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 
-export async function GET(req: Request) {
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { searchParams } = new URL(req.url);
+  const email = searchParams.get('email');
+
+  if (!email) return NextResponse.json({ error: 'Email required' }, { status: 400 });
+
   try {
-    const { searchParams } = new URL(req.url);
-    const email = searchParams.get('email');
+    const res = await pool.query(`
+      SELECT p.salutation, p.first_mid_name, p.last_name, m.nomor_member
+      FROM aeromiles.PENGGUNA p
+      JOIN aeromiles.MEMBER m ON p.email = m.email
+      WHERE p.email = $1
+    `, [email]);
 
-    if (!email) {
-      return NextResponse.json({ error: 'Email required' }, { status: 400 });
-    }
-
-    const member = DUMMY_MEMBERS.find(m => m.email === email);
-    
-    if (!member) {
-      return NextResponse.json({ error: 'Member not found' }, { status: 404 });
-    }
-
-    return NextResponse.json(member);
+    if (res.rows.length === 0) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+    return NextResponse.json(res.rows[0]);
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Database error' }, { status: 500 });
   }
 }

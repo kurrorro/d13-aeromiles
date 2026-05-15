@@ -52,7 +52,7 @@ export default function DetailKlaimPage() {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/klaim/${id}`)
+    fetch(`/api/member/klaim/${id}`)
       .then(res => {
         if (res.status === 404) { setNotFound(true); return null; }
         return res.json();

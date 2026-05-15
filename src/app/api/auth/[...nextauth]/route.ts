@@ -14,29 +14,21 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const query = `
-          SELECT p.email, p.password, p.first_mid_name, p.last_name,
-                 CASE WHEN EXISTS (SELECT 1 FROM MEMBER WHERE email = p.email) 
-                      THEN 'member'
-                      WHEN EXISTS (SELECT 1 FROM STAF WHERE email = p.email) 
-                      THEN 'staf'
-                 END AS role,
-                 s.kode_maskapai
-          FROM PENGGUNA p
-          LEFT JOIN STAF s ON p.email = s.email
-          WHERE LOWER(p.email) = LOWER($1);
-        `;
-
         try {
-          const result = await pool.query(query, [credentials.email]);
-          
-          if (result.rows.length === 0) return null;
+          await pool.query('SELECT aeromiles.verifikasi_login($1, $2)', [credentials.email, credentials.password]);
 
+          const userQuery = `
+            SELECT p.email, p.first_mid_name, p.last_name,
+                   CASE WHEN EXISTS (SELECT 1 FROM aeromiles.MEMBER WHERE email = p.email) THEN 'member'
+                        WHEN EXISTS (SELECT 1 FROM aeromiles.STAF WHERE email = p.email) THEN 'staf'
+                   END AS role,
+                   s.kode_maskapai
+            FROM aeromiles.PENGGUNA p
+            LEFT JOIN aeromiles.STAF s ON p.email = s.email
+            WHERE LOWER(p.email) = LOWER($1);
+          `;
+          const result = await pool.query(userQuery, [credentials.email]);
           const user = result.rows[0];
-          
-          const isPasswordValid = await bcrypt.compare(credentials.password, user.password);
-          
-          if (!isPasswordValid) return null;
 
           return {
             id: user.email,
@@ -45,9 +37,9 @@ export const authOptions: NextAuthOptions = {
             role: user.role,
             kode_maskapai: user.kode_maskapai
           };
-        } catch (error) {
-          console.error("Login error:", error);
-          return null;
+        } catch (error: any) {
+          console.error("Auth Exception:", error.message);
+          throw new Error(error.message || "Email atau password salah, silakan coba lagi.");
         }
       },
     }),

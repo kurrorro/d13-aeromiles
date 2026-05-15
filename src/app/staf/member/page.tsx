@@ -92,10 +92,10 @@ export default function StaffMemberManagement() {
               className="w-full lg:w-auto border border-[var(--color-border-light)] rounded-lg px-4 py-2 text-xs focus:border-[var(--color-primary)] outline-none font-medium bg-white"
             >
               <option value="">Semua Tier</option>
-              <option value="Blue">Blue</option>
-              <option value="Silver">Silver</option>
-              <option value="Gold">Gold</option>
-              <option value="Platinum">Platinum</option>
+              <option value="T001">Blue</option>
+              <option value="T002">Silver</option>
+              <option value="T003">Gold</option>
+              <option value="T004">Platinum</option>
             </select>
           </div>
           <Link 

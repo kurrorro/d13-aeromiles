@@ -13,7 +13,6 @@ export async function GET(req: NextRequest) {
   const email = session.user.email;
 
   try {
-    //Get Staff Info & Profile
     const stafInfoRes = await pool.query(`
       SELECT s.id_staf, s.kode_maskapai, m.nama_maskapai,
              p.salutation, p.first_mid_name, p.last_name, p.mobile_number, p.kewarganegaraan, p.tanggal_lahir
@@ -29,14 +28,12 @@ export async function GET(req: NextRequest) {
     const profile = stafInfoRes.rows[0];
     const kodeMaskapai = profile.kode_maskapai;
 
-    // Count 'Menunggu' for ALL staff 
     const waitingRes = await pool.query(`
       SELECT count(*) as count 
       FROM CLAIM_MISSING_MILES 
       WHERE status_penerimaan = 'Menunggu'
     `);
 
-    //Stats for claims handled by this staff
     const statsRes = await pool.query(`
       SELECT 
         SUM(CASE WHEN status_penerimaan = 'Disetujui' THEN 1 ELSE 0 END) as approved_count,

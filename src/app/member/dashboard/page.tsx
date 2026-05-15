@@ -63,6 +63,26 @@ export default function MemberDashboard() {
             </div>
           </div>
         </div>
+
+        {/* Info Grid - NEW */}
+        <div className="mt-8 grid grid-cols-2 md:grid-cols-4 gap-4 pt-8 border-t border-white/20">
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Email</p>
+            <p className="text-sm font-bold truncate">{profile.email}</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Nomor HP</p>
+            <p className="text-sm font-bold">{profile.mobile_number}</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Kewarganegaraan</p>
+            <p className="text-sm font-bold">{profile.kewarganegaraan}</p>
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-widest opacity-60">Tanggal Lahir</p>
+            <p className="text-sm font-bold">{new Date(profile.tanggal_lahir).toLocaleDateString('id-ID', { dateStyle: 'long' })}</p>
+          </div>
+        </div>
       </div>
 
       {/* Secondary Stats Row */}

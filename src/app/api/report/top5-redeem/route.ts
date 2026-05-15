@@ -13,13 +13,13 @@ export async function GET() {
         SELECT 
             p.first_mid_name || ' ' || p.last_name AS nama,
             r.email_member AS email,
-            COUNT(*) AS jumlah_redeem,
-            SUM(h.miles) AS total_miles_diredeemed
+            COUNT(r.*) AS jumlah_redeem,
+            COALESCE(SUM(h.miles), 0) AS total_miles_diredeemed
         FROM aeromiles.redeem r
         JOIN aeromiles.hadiah h ON r.kode_hadiah = h.kode_hadiah
         JOIN aeromiles.pengguna p ON r.email_member = p.email
-        GROUP BY r.email_member, nama
-        ORDER BY jumlah_redeem DESC
+        GROUP BY r.email_member, p.first_mid_name, p.last_name
+        ORDER BY jumlah_redeem DESC, total_miles_diredeemed DESC
         LIMIT 5;
     `;
 

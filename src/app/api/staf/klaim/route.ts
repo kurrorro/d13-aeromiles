@@ -17,7 +17,6 @@ export async function GET(req: NextRequest) {
   const endDate = searchParams.get('endDate');
 
   try {
-    // Ambil kode maskapai staf (untuk keperluan info di frontend jika perlu)
     const stafRes = await pool.query('SELECT kode_maskapai FROM aeromiles.STAF WHERE email = $1', [email_staf]);
     const myMaskapai = stafRes.rows.length > 0 ? stafRes.rows[0].kode_maskapai : null;
 

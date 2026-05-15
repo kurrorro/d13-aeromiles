@@ -13,10 +13,9 @@ export async function GET(req: NextRequest) {
   const email = session.user.email;
 
   try {
-    // 1. Get Member Profile & Tier
     const profileRes = await pool.query(`
       SELECT 
-        p.first_mid_name, p.last_name, p.salutation,
+        p.first_mid_name, p.last_name, p.salutation, p.email, p.mobile_number, p.kewarganegaraan, p.tanggal_lahir,
         m.nomor_member, m.tanggal_bergabung, m.award_miles, m.total_miles,
         t.nama as tier_name
       FROM PENGGUNA p
@@ -31,7 +30,6 @@ export async function GET(req: NextRequest) {
 
     const profile = profileRes.rows[0];
 
-    // 2. Get 5 Latest Transactions (UNION ALL)
     const transactionsRes = await pool.query(`
       (SELECT 'Redeem' as tipe, h.nama as keterangan, r.timestamp, -h.miles as amount
        FROM REDEEM r JOIN HADIAH h ON r.kode_hadiah = h.kode_hadiah

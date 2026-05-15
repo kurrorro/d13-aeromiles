@@ -41,8 +41,8 @@ export async function POST(req: NextRequest) {
   } = body;
 
   try {
-    // Explicitly target the aeromiles schema to ensure it lands in the right place
-    const res = await pool.query(`
+    const { executeWithNotices } = await import('@/lib/db');
+    const res = await executeWithNotices(`
       INSERT INTO aeromiles.CLAIM_MISSING_MILES (
         email_member, maskapai, bandara_asal, bandara_tujuan, 
         tanggal_penerbangan, flight_number, nomor_tiket, 
@@ -56,7 +56,11 @@ export async function POST(req: NextRequest) {
     ]);
 
     if (res.rows.length > 0) {
-      return NextResponse.json(res.rows[0]);
+      const triggerNotice = res.notices.find(n => n.startsWith('SUKSES:'));
+      return NextResponse.json({
+        ...res.rows[0],
+        message: triggerNotice || 'Klaim berhasil disimpan.'
+      });
     } else {
       throw new Error('Gagal menyimpan klaim ke database.');
     }

@@ -1,18 +1,22 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
+import pool from '@/lib/db';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
-import { DUMMY_MEMBERS } from '@/dummy/member';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   try {
-    const session = await getServerSession(authOptions);
-    if (!session?.user?.email) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    const res = await pool.query(`
+      SELECT m.award_miles as saldo
+      FROM aeromiles.MEMBER m
+      WHERE m.email = $1
+    `, [session.user.email]);
 
-    const member = DUMMY_MEMBERS.find(m => m.email === session.user.email);
-    
-    // Default dummy saldo jika tidak ditemukan adalah 0
-    return NextResponse.json({ saldo: member?.award_miles || 0 });
+    if (res.rows.length === 0) return NextResponse.json({ error: 'Member not found' }, { status: 404 });
+    return NextResponse.json({ saldo: res.rows[0].saldo });
   } catch (error) {
-    return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    return NextResponse.json({ error: 'Database error' }, { status: 500 });
   }
 }

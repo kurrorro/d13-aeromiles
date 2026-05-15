@@ -26,7 +26,6 @@ export async function GET() {
     }
 
     const member = result.rows[0];
-    // Ensure numeric values are numbers
     member.total_miles = parseInt(member.total_miles);
     member.award_miles = parseInt(member.award_miles);
     member.frekuensi_terbang = parseInt(member.frekuensi_terbang);

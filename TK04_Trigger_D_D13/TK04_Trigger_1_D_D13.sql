@@ -16,6 +16,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+DROP TRIGGER IF EXISTS trigger_cek_duplikasi_email ON PENGGUNA;
 CREATE TRIGGER trigger_cek_duplikasi_email
 BEFORE INSERT ON PENGGUNA
 FOR EACH ROW
@@ -26,6 +27,9 @@ RETURNS BOOLEAN AS $$
 DECLARE
     is_valid BOOLEAN;
 BEGIN
+    -- Tambahkan public ke search_path lokal fungsi agar bisa temukan crypt()
+    SET LOCAL search_path TO AEROMILES, public, extensions;
+
     SELECT EXISTS (
         SELECT 1
         FROM PENGGUNA

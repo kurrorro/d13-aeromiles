@@ -11,7 +11,6 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 
   try {
-    // Ambil maskapai staf
     const stafRes = await pool.query('SELECT kode_maskapai FROM aeromiles.STAF WHERE email = $1', [session.user.email]);
     if (stafRes.rows.length === 0) return NextResponse.json({ error: 'Staf not found' }, { status: 404 });
     const myMaskapai = stafRes.rows[0].kode_maskapai;
@@ -59,18 +58,20 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   });
 
   try {
-    // Ambil maskapai staf
     const stafRes = await client.query('SELECT kode_maskapai FROM aeromiles.STAF WHERE email = $1', [session.user.email]);
     if (stafRes.rows.length === 0) return NextResponse.json({ error: 'Staf not found' }, { status: 404 });
     const myMaskapai = stafRes.rows[0].kode_maskapai;
 
     console.log(`[STAF ACTION] Email: ${session.user.email}, Airline: ${myMaskapai}, Claim ID: ${id}`);
 
-    // Pastikan klaim milik maskapai staf
-    const checkRes = await client.query('SELECT maskapai FROM aeromiles.CLAIM_MISSING_MILES WHERE id = $1', [id]);
+    const checkRes = await client.query('SELECT maskapai, status_penerimaan FROM aeromiles.CLAIM_MISSING_MILES WHERE id = $1', [id]);
     if (checkRes.rows.length === 0 || checkRes.rows[0].maskapai !== myMaskapai) {
       console.warn(`[STAF SECURITY ALERT] Unauthorized attempt by ${session.user.email} (Airline ${myMaskapai}) to process Claim ID ${id} (Airline ${checkRes.rows[0]?.maskapai})`);
       return NextResponse.json({ error: 'Akses ditolak. Klaim ini bukan milik maskapai Anda.' }, { status: 403 });
+    }
+
+    if (checkRes.rows[0].status_penerimaan !== 'Menunggu') {
+      return NextResponse.json({ error: 'Klaim ini sudah diproses dan tidak dapat diubah kembali.' }, { status: 400 });
     }
 
     const res = await client.query(`

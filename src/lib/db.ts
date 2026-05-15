@@ -5,7 +5,7 @@ const pool = new Pool({
 });
 
 pool.on('connect', (client) => {
-  client.query('SET search_path TO aeromiles');
+  client.query('SET search_path TO aeromiles, public, extensions');
 });
 
 export async function executeWithNotices(query: string, params: any[] = []) {
