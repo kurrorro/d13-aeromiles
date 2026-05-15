@@ -22,17 +22,25 @@ export async function POST(req: NextRequest) {
   }
 
   const client = await pool.connect();
+  let triggerNotice = '';
+  client.on('notice', (msg) => {
+    if (msg.message?.startsWith('SUKSES:')) triggerNotice = msg.message;
+  });
+
   try {
-    // The trigger trg_update_miles_transfer will handle the award_miles updates and balance check
+    
     await client.query(`
-      INSERT INTO TRANSFER (email_member_1, email_member_2, timestamp, jumlah, catatan)
-      VALUES ($1, $2, CURRENT_TIMESTAMP, $3, $4)
+      INSERT INTO aeromiles.TRANSFER (email_member_1, email_member_2, jumlah, catatan)
+      VALUES ($1, $2, $3, $4)
     `, [senderEmail, recipientEmail, amount, note]);
 
-    return NextResponse.json({ message: 'Transfer berhasil!' });
+    return NextResponse.json({ 
+      message: triggerNotice || 'Transfer berhasil dilakukan.' 
+    });
   } catch (error: any) {
-    console.error('Transfer Error:', error);
+    console.error('Transfer Error Details:', error);
     const message = error.message || 'Internal Server Error';
+    // If it's a RAISE EXCEPTION, the message will contain the error string from SQL.
     return NextResponse.json({ error: message }, { status: 400 });
   } finally {
     client.release();

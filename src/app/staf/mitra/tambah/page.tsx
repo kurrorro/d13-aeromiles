@@ -7,15 +7,33 @@ import { useState } from 'react';
 export default function TambahMitra() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    email_mitra: '',
+    nama_mitra: '',
+    tanggal_kerja_sama: ''
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
+    try {
+      const res = await fetch('/api/staf/mitra', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        alert(data.message);
+        router.push('/staf/mitra');
+      } else {
+        alert(data.error);
+      }
+    } catch (error) {
+      alert('Gagal mendaftarkan mitra');
+    } finally {
       setIsSubmitting(false);
-      router.push('/staf/mitra');
-    }, 1000);
+    }
   };
 
   return (
@@ -38,6 +56,8 @@ export default function TambahMitra() {
           <input 
             type="email" 
             required
+            value={formData.email_mitra}
+            onChange={e => setFormData({...formData, email_mitra: e.target.value})}
             placeholder="partner@example.com"
             className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-secondary)] outline-none font-medium transition-colors"
           />
@@ -48,6 +68,8 @@ export default function TambahMitra() {
           <input 
             type="text" 
             required
+            value={formData.nama_mitra}
+            onChange={e => setFormData({...formData, nama_mitra: e.target.value})}
             placeholder="Contoh: Hotel Indonesia Kempinski"
             className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-secondary)] outline-none font-medium transition-colors"
           />
@@ -58,6 +80,8 @@ export default function TambahMitra() {
           <input 
             type="date" 
             required
+            value={formData.tanggal_kerja_sama}
+            onChange={e => setFormData({...formData, tanggal_kerja_sama: e.target.value})}
             className="w-full border-b border-[var(--color-border-light)] py-2 text-xs focus:border-[var(--color-secondary)] outline-none font-medium bg-transparent transition-colors"
           />
         </div>
@@ -89,4 +113,3 @@ export default function TambahMitra() {
     </div>
   );
 }
-

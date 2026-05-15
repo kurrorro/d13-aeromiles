@@ -2,13 +2,14 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { DUMMY_BANDARA, DUMMY_MASKAPAI } from '@/dummy/bandara';
+import { useToast } from '@/components/ToastProvider';
 
 type BandaraItem = { iata_code: string; nama: string; kota: string };
 type MaskapaiItem = { kode_maskapai: string; nama_maskapai: string };
 
 export default function AjukanKlaimPage() {
   const router = useRouter();
+  const { showToast } = useToast();
   const [form, setForm] = useState({
     maskapai: '', bandara_asal: '', bandara_tujuan: '',
     tanggal_penerbangan: '', flight_number: '', nomor_tiket: '', kelas_kabin: '', pnr: '',
@@ -27,8 +28,8 @@ export default function AjukanKlaimPage() {
         setMaskapai(d.airlines || []);
       })
       .catch(() => {
-        setBandara(DUMMY_BANDARA);
-        setMaskapai(DUMMY_MASKAPAI);
+        setBandara([]);
+        setMaskapai([]);
       });
   }, []);
 
@@ -69,11 +70,14 @@ export default function AjukanKlaimPage() {
       if (!res.ok) {
         const data = await res.json();
         setSubmitError(data.error || 'Gagal mengajukan klaim');
+        showToast(data.error || 'Gagal mengajukan klaim', 'error');
         return;
       }
+      showToast('Klaim berhasil diajukan! Status: Menunggu.', 'success');
       router.push('/member/klaim');
     } catch {
       setSubmitError('Terjadi kesalahan jaringan. Coba lagi.');
+      showToast('Terjadi kesalahan jaringan.', 'error');
     } finally {
       setIsSubmitting(false);
     }
