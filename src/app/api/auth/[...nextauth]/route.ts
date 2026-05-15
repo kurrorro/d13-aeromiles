@@ -45,16 +45,21 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       if (user) {
         token.role = user.role;
         token.kode_maskapai = (user as any).kode_maskapai;
+      }
+      // Tambahkan logic ini untuk menangkap update dari client-side
+      if (trigger === "update" && session?.name) {
+        token.name = session.name;
       }
       return token;
     },
     async session({ session, token }) {
       if (session.user) {
         session.user.role = token.role as string;
+        session.user.name = token.name as string; // Pastikan nama di session ikut terupdate dari token
         (session.user as any).kode_maskapai = token.kode_maskapai as string;
       }
       return session;
