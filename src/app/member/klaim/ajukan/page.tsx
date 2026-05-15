@@ -83,8 +83,7 @@ export default function AjukanKlaimPage() {
     }
   };
 
-  const InputError = ({ field }: { field: string }) =>
-    errors[field] ? <p className="text-xs text-[var(--color-danger)] mt-1">{errors[field]}</p> : null;
+
 
   return (
     <div className="max-w-3xl mx-auto px-6 py-12 font-sans">
@@ -129,7 +128,7 @@ export default function AjukanKlaimPage() {
                 <option key={m.kode_maskapai} value={m.kode_maskapai}>{m.kode_maskapai} — {m.nama_maskapai}</option>
               ))}
             </select>
-            <InputError field="maskapai" />
+            <InputError field="maskapai" errors={errors} />
           </div>
 
           {/* Rute */}
@@ -143,7 +142,7 @@ export default function AjukanKlaimPage() {
                 <option value="">-- Pilih Bandara --</option>
                 {bandara.map(b => <option key={b.iata_code} value={b.iata_code}>{b.iata_code} — {b.nama} ({b.kota})</option>)}
               </select>
-              <InputError field="bandara_asal" />
+              <InputError field="bandara_asal" errors={errors} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-[var(--color-title)] uppercase tracking-wider mb-1.5">
@@ -154,7 +153,7 @@ export default function AjukanKlaimPage() {
                 <option value="">-- Pilih Bandara --</option>
                 {bandara.map(b => <option key={b.iata_code} value={b.iata_code}>{b.iata_code} — {b.nama} ({b.kota})</option>)}
               </select>
-              <InputError field="bandara_tujuan" />
+              <InputError field="bandara_tujuan" errors={errors} />
             </div>
           </div>
 
@@ -166,7 +165,7 @@ export default function AjukanKlaimPage() {
               </label>
               <input type="date" name="tanggal_penerbangan" value={form.tanggal_penerbangan} onChange={handleChange}
                 className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-secondary)] bg-white transition-colors ${errors.tanggal_penerbangan ? 'border-[var(--color-danger)]' : 'border-[var(--color-border-light)]'}`} />
-              <InputError field="tanggal_penerbangan" />
+              <InputError field="tanggal_penerbangan" errors={errors} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-[var(--color-title)] uppercase tracking-wider mb-1.5">
@@ -174,7 +173,7 @@ export default function AjukanKlaimPage() {
               </label>
               <input type="text" name="flight_number" value={form.flight_number} onChange={handleChange} placeholder="Contoh: GA401"
                 className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-secondary)] transition-colors ${errors.flight_number ? 'border-[var(--color-danger)]' : 'border-[var(--color-border-light)]'}`} />
-              <InputError field="flight_number" />
+              <InputError field="flight_number" errors={errors} />
             </div>
           </div>
 
@@ -186,7 +185,7 @@ export default function AjukanKlaimPage() {
               </label>
               <input type="text" name="nomor_tiket" value={form.nomor_tiket} onChange={handleChange} placeholder="Contoh: TKT20250101"
                 className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-secondary)] transition-colors ${errors.nomor_tiket ? 'border-[var(--color-danger)]' : 'border-[var(--color-border-light)]'}`} />
-              <InputError field="nomor_tiket" />
+              <InputError field="nomor_tiket" errors={errors} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-[var(--color-title)] uppercase tracking-wider mb-1.5">
@@ -199,7 +198,7 @@ export default function AjukanKlaimPage() {
                 <option value="Business">Business</option>
                 <option value="First">First</option>
               </select>
-              <InputError field="kelas_kabin" />
+              <InputError field="kelas_kabin" errors={errors} />
             </div>
             <div>
               <label className="block text-xs font-semibold text-[var(--color-title)] uppercase tracking-wider mb-1.5">
@@ -207,7 +206,7 @@ export default function AjukanKlaimPage() {
               </label>
               <input type="text" name="pnr" value={form.pnr} onChange={handleChange} placeholder="Contoh: ABC1001"
                 className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-secondary)] transition-colors ${errors.pnr ? 'border-[var(--color-danger)]' : 'border-[var(--color-border-light)]'}`} />
-              <InputError field="pnr" />
+              <InputError field="pnr" errors={errors} />
             </div>
           </div>
 
@@ -227,3 +226,5 @@ export default function AjukanKlaimPage() {
     </div>
   );
 }
+const InputError = ({ field, errors }: { field: string; errors: Record<string, string> }) =>
+  errors[field] ? <p className="text-xs text-[var(--color-danger)] mt-1">{errors[field]}</p> : null;

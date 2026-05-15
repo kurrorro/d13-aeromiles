@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import pool from '@/lib/db';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 
 export async function GET(req: Request) {
   const session = await getServerSession(authOptions);
@@ -19,7 +19,7 @@ export async function GET(req: Request) {
       const client = await pool.connect();
       let noticeMessage = '';
       client.on('notice', (msg) => {
-        if (msg.message.includes('SUKSES')) {
+        if (msg.message?.includes('SUKSES')) {
           noticeMessage = msg.message;
         }
       });
@@ -70,3 +70,4 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
   }
 }
+

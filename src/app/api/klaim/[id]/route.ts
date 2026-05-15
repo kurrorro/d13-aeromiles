@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import { authOptions } from '@/lib/auth';
 import { DUMMY_KLAIM } from '@/dummy/klaim';
 
 export async function GET(_req: Request, { params }: { params: Promise<{ id: string }> }) {
