@@ -97,19 +97,23 @@ export async function DELETE(req: NextRequest) {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const { id } = await req.json();
+    const { id, email_member_1, email_member_2, timestamp: bodyTimestamp } = await req.json();
 
     try {
-        if (id.startsWith('T|')) {
-            const [, email1, email2, timestamp] = id.split('|');
-            await pool.query('DELETE FROM TRANSFER WHERE email_member_1 = $1 AND email_member_2 = $2 AND timestamp = $3', [email1, email2, timestamp]);
-        } else if (id.startsWith('R|')) {
+        if (id?.startsWith('T|') || (email_member_1 && email_member_2 && bodyTimestamp)) {
+            let e1 = email_member_1, e2 = email_member_2, ts = bodyTimestamp;
+            if (id?.startsWith('T|')) {
+                const parts = id.split('|');
+                e1 = parts[1]; e2 = parts[2]; ts = parts[3];
+            }
+            await pool.query('DELETE FROM TRANSFER WHERE email_member_1 = $1 AND email_member_2 = $2 AND timestamp = $3', [e1, e2, ts]);
+        } else if (id?.startsWith('R|')) {
             const [, email, kode, timestamp] = id.split('|');
             await pool.query('DELETE FROM REDEEM WHERE email_member = $1 AND kode_hadiah = $2 AND timestamp = $3', [email, kode, timestamp]);
-        } else if (id.startsWith('P|')) {
+        } else if (id?.startsWith('P|')) {
             const [, email, pkg_id, timestamp] = id.split('|');
             await pool.query('DELETE FROM MEMBER_AWARD_MILES_PACKAGE WHERE email_member = $1 AND id_award_miles_package = $2 AND timestamp = $3', [email, pkg_id, timestamp]);
-        } else if (id.startsWith('C|')) {
+        } else if (id?.startsWith('C|')) {
             return NextResponse.json({ error: 'Transaksi Klaim Disetujui tidak dapat dihapus!' }, { status: 400 });
         }
 

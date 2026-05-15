@@ -34,6 +34,8 @@ export default function LaporanPage() {
     total_klaim_disetujui: 0
   });
   const [topMembers, setTopMembers] = useState<TopMember[]>([]);
+  const [topTransfer, setTopTransfer] = useState<any[]>([]);
+  const [topRedeem, setTopRedeem] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,13 +46,29 @@ export default function LaporanPage() {
   const fetchLaporan = async () => {
     setLoading(true);
     try {
-      const res = await fetch('/api/staf/laporan');
-      if (res.ok) {
-        const data = await res.json();
+      const [resReport, resTransfer, resRedeem] = await Promise.all([
+        fetch('/api/staf/laporan'),
+        fetch('/api/report/top5-transfer'),
+        fetch('/api/report/top5-redeem')
+      ]);
+
+      if (resReport.ok) {
+        const data = await resReport.json();
         setStats(data.stats);
         setTopMembers(data.topMembers);
         setTransactions(data.transactions);
       }
+      
+      if (resTransfer.ok) {
+        const data = await resTransfer.json();
+        setTopTransfer(data);
+      }
+
+      if (resRedeem.ok) {
+        const data = await resRedeem.json();
+        setTopRedeem(data);
+      }
+
     } catch (error) {
       console.error('Error fetching report:', error);
     } finally {
@@ -72,10 +90,16 @@ export default function LaporanPage() {
 
     if (confirmed) {
       try {
+        let body: any = { id };
+        if (tipe === 'Transfer') {
+          const [, e1, e2, ts] = id.split('|');
+          body = { email_member_1: e1, email_member_2: e2, timestamp: ts };
+        }
+
         const res = await fetch('/api/staf/laporan', {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ id })
+          body: JSON.stringify(body)
         });
         const data = await res.json();
         if (res.ok) {
@@ -221,34 +245,86 @@ export default function LaporanPage() {
           </div>
         </div>
 
-        <div className="lg:col-span-1 bg-white rounded-lg border border-border-light overflow-hidden">
-          <div className="p-5 border-b border-border-light bg-bg-subtle">
-            <h2 className="text-sm font-bold tracking-wider uppercase text-title">Top Member (Berdasarkan Total Miles)</h2>
+        <div className="lg:col-span-1 flex flex-col gap-8">
+          {/* TOP MILES */}
+          <div className="bg-white rounded-lg border border-border-light overflow-hidden shadow-sm">
+            <div className="p-5 border-b border-border-light bg-bg-subtle">
+              <h2 className="text-sm font-bold tracking-wider uppercase text-title">Top 5 Member by Total Miles</h2>
+            </div>
+            <div className="p-5 flex flex-col gap-4">
+              {loading ? (
+                  <p className="text-center text-xs text-text-muted">Memuat...</p>
+              ) : topMembers.length === 0 ? (
+                  <p className="text-center text-xs text-text-muted">Belum ada data.</p>
+              ) : topMembers.map(m => (
+                <div key={m.email} className="flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg font-bold text-border-light w-4">{m.peringkat}</span>
+                    <div>
+                      <p className="text-sm font-bold text-title">{m.nama_lengkap}</p>
+                      <p className="text-[10px] text-text-muted font-mono">{m.email}</p>
+                    </div>
+                  </div>
+                  <p className="text-sm font-bold text-secondary">{m.total_miles.toLocaleString('id-ID')}</p>
+                </div>
+              ))}
+            </div>
           </div>
-          
-          <div className="p-5 flex flex-col gap-4">
-            {loading ? (
-                <p className="text-center text-xs text-text-muted">Memuat peringkat...</p>
-            ) : topMembers.length === 0 ? (
-                <p className="text-center text-xs text-text-muted">Belum ada data member.</p>
-            ) : topMembers.map(m => (
-              <div key={m.email} className="flex justify-between items-center">
-                <div className="flex items-center gap-3">
-                  <span className="text-lg font-bold text-border-light w-4">{m.peringkat}</span>
-                  <div>
-                    <p className="text-sm font-bold text-title">{m.nama_lengkap}</p>
-                    <p className="text-[10px] text-text-muted font-mono">{m.email}</p>
+
+          {/* TOP TRANSFER */}
+          <div className="bg-white rounded-lg border border-border-light overflow-hidden shadow-sm">
+            <div className="p-5 border-b border-border-light bg-bg-subtle">
+              <h2 className="text-sm font-bold tracking-wider uppercase text-title">Top 5 Member Paling Aktif Transfer</h2>
+            </div>
+            <div className="p-5 flex flex-col gap-4">
+              {loading ? (
+                  <p className="text-center text-xs text-text-muted">Memuat...</p>
+              ) : topTransfer.length === 0 ? (
+                  <p className="text-center text-xs text-text-muted">Belum ada data.</p>
+              ) : topTransfer.map((m, idx) => (
+                <div key={m.email} className="flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg font-bold text-border-light w-4">{idx + 1}</span>
+                    <div>
+                      <p className="text-sm font-bold text-title">{m.nama}</p>
+                      <p className="text-[10px] text-text-muted font-mono">{m.email}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-secondary">{m.jumlah_transfer}x</p>
+                    <p className="text-[9px] text-text-muted">{parseInt(m.total_miles_ditransfer).toLocaleString('id-ID')} miles</p>
                   </div>
                 </div>
-                <p className="text-sm font-bold text-secondary">{m.total_miles.toLocaleString('id-ID')}</p>
-              </div>
-            ))}
-            
-            {!loading && topMembers.length > 0 && (
-                <div className="mt-4 p-3 bg-bg-subtle rounded border border-border-light text-[10px] text-text-muted italic">
-                    Data dihitung secara dinamis dari total akumulasi miles member.
+              ))}
+            </div>
+          </div>
+
+          {/* TOP REDEEM */}
+          <div className="bg-white rounded-lg border border-border-light overflow-hidden shadow-sm">
+            <div className="p-5 border-b border-border-light bg-bg-subtle">
+              <h2 className="text-sm font-bold tracking-wider uppercase text-title">Top 5 Member Paling Aktif Redeem</h2>
+            </div>
+            <div className="p-5 flex flex-col gap-4">
+              {loading ? (
+                  <p className="text-center text-xs text-text-muted">Memuat...</p>
+              ) : topRedeem.length === 0 ? (
+                  <p className="text-center text-xs text-text-muted">Belum ada data.</p>
+              ) : topRedeem.map((m, idx) => (
+                <div key={m.email} className="flex justify-between items-center">
+                  <div className="flex items-center gap-3">
+                    <span className="text-lg font-bold text-border-light w-4">{idx + 1}</span>
+                    <div>
+                      <p className="text-sm font-bold text-title">{m.nama}</p>
+                      <p className="text-[10px] text-text-muted font-mono">{m.email}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold text-secondary">{m.jumlah_redeem}x</p>
+                    <p className="text-[9px] text-text-muted">{parseInt(m.total_miles_diredeemed).toLocaleString('id-ID')} miles</p>
+                  </div>
                 </div>
-            )}
+              ))}
+            </div>
           </div>
         </div>
 
