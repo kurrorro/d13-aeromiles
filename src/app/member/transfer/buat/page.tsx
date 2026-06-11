@@ -203,7 +203,7 @@ export default function BuatTransferPage() {
                 Jumlah Miles <span className="text-[var(--color-danger)]">*</span>
               </label>
               <input type="number" name="jumlah" value={form.jumlah} onChange={handleChange}
-                placeholder="Masukkan jumlah miles" min={1} max={awardMiles}
+                placeholder="Masukkan jumlah miles" min={1}
                 className={`w-full border rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-[var(--color-secondary)] transition-colors ${errors.jumlah ? 'border-[var(--color-danger)]' : 'border-[var(--color-border-light)]'}`} />
               {errors.jumlah && <p className="text-xs text-[var(--color-danger)] mt-1">{errors.jumlah}</p>}
             </div>
