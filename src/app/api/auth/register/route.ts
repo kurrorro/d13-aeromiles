@@ -14,11 +14,7 @@ export async function POST(request: Request) {
   try {
     await client.query('BEGIN');
 
-    const checkEmail = await client.query('SELECT email FROM aeromiles.PENGGUNA WHERE LOWER(email) = LOWER($1)', [email]);
-    if (checkEmail.rows.length > 0) {
-      await client.query('ROLLBACK');
-      return NextResponse.json({ error: `Email "${email}" sudah terdaftar, silakan gunakan email lain.` }, { status: 409 });
-    }
+    // Email duplication is now handled entirely by PostgreSQL Trigger 1 (trigger_cek_duplikasi_email)
 
     await client.query(
       `INSERT INTO aeromiles.PENGGUNA (email, password, salutation, first_mid_name, last_name, country_code, mobile_number, tanggal_lahir, kewarganegaraan)
